@@ -23,7 +23,14 @@ export function ListaTransacoes({ initialData }: { initialData: Transacao[] }) {
 
 	// 3. Lógica de Filtragem (useMemo garante que só rode quando os filtros ou dados mudarem)
 	const transacoesFiltradas = useMemo(() => {
+
+    const hoje = new Date().getTime();
+
 		let filtradas = transacoes.filter((t) => {
+
+      const dataPagamento = new Date(t.data_pagamento).getTime();
+      if (dataPagamento > hoje) return false;
+
 			const termoBusca = busca.toLowerCase();
 			const matchBusca = t.compra.toLowerCase().includes(termoBusca) || (t.estabelecimento && t.estabelecimento.toLowerCase().includes(termoBusca));
 

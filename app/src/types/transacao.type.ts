@@ -13,8 +13,9 @@ export interface Transacao {
 	parcela: number;
 	valor: number;
 	data_inicio: string;
+	data_pagamento: string;
 	data_fim: string;
 }
 
-// Tipo usado apenas na hora de criar/atualizar (sem o ID obrigatório)
-export type TransacaoPayload = Omit<Transacao, "id">;
+// Tipo usado apenas na hora de criar/atualizar
+export type TransacaoPayload = Omit<Transacao, "id" | "data_pagamento" | "data_fim">;

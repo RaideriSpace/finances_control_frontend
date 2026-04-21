@@ -25,7 +25,6 @@ export function FormularioTransacao({ onSuccess, onCancel, initialData }: { onSu
 		parcela: initialData?.parcela || 1,
 		valor: initialData?.valor || "",
 		data_inicio: formatarDataInput(initialData?.data_inicio),
-		data_fim: formatarDataInput(initialData?.data_fim),
 	});
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +41,6 @@ export function FormularioTransacao({ onSuccess, onCancel, initialData }: { onSu
 			parcelamento: formData.tipo === "debito" ? 1 : Number(formData.parcelamento),
 			parcela: formData.tipo === "debito" ? 1 : Number(formData.parcela),
 			data_inicio: formatarDataParaBanco(formData.data_inicio),
-			data_fim: formData.tipo === "debito" ? formatarDataParaBanco(formData.data_inicio) : formatarDataParaBanco(formData.data_fim),
 			tipo_2: formData.tipo_2 || null,
 		}; 
 
@@ -200,16 +198,6 @@ export function FormularioTransacao({ onSuccess, onCancel, initialData }: { onSu
 							className="w-full border p-2 rounded shadow-sm"
 							value={formData.parcela}
 							onChange={(e) => setFormData({ ...formData, parcela: parseInt(e.target.value) })}
-						/>
-					</div>
-					<div>
-						<label className="block font-bold mb-1">Data Fim</label>
-						<input
-							required
-							type="date"
-							className="w-full border p-2 rounded shadow-sm"
-							value={formData.data_fim}
-							onChange={(e) => setFormData({ ...formData, data_fim: e.target.value })}
 						/>
 					</div>
 				</>
