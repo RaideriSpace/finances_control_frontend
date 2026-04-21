@@ -1,5 +1,5 @@
-// Dentro do seu componente de página ou um componente novo AddButton.tsx
 "use client";
+
 import { useState } from "react";
 import { FormularioTransacao } from "./FormularioTransacao";
 
@@ -10,14 +10,19 @@ export function AddTransacaoButton() {
 		<>
 			<button
 				onClick={() => setIsOpen(true)}
-				className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg mb-6 shadow-md transition">
-				+ Nova Transação
+				className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
+				<span className="text-lg leading-none">+</span> Nova Transação
 			</button>
 
+			{/* MODAL DE CRIAÇÃO (Com efeito Glassmorphism escuro) */}
 			{isOpen && (
-				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-					<div className="bg-white p-6 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-						<h2 className="text-2xl font-bold mb-6">Nova Transação</h2>
+				<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
+					<div className="dark-scrollbar bg-slate-900 border border-slate-700 p-6 sm:p-8 rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/50 pr-4 sm:pr-6">
+						<h2 className="text-2xl font-black text-slate-100 mb-6 flex items-center gap-3">
+							<span className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm">💰</span>
+							Nova Transação
+						</h2>
+
 						<FormularioTransacao
 							onSuccess={() => {
 								setIsOpen(false);
