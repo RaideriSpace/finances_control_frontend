@@ -44,8 +44,8 @@ export function ListaTransacoes({ initialData }: { initialData: Transacao[] }) {
 		// 1. ORDENAÇÃO POR DATA (Padrão: Mais nova primeiro)
 		// Convertemos as strings YYYY-MM-DD para getTime() para comparar números
 		filtradas.sort((a, b) => {
-			const dataA = new Date(a.data_inicio).getTime();
-			const dataB = new Date(b.data_inicio).getTime();
+			const dataA = new Date(a.data_pagamento).getTime();
+			const dataB = new Date(b.data_pagamento).getTime();
 			return dataB - dataA; // Ordem decrescente (mais nova no topo)
 		});
 
@@ -123,7 +123,7 @@ export function ListaTransacoes({ initialData }: { initialData: Transacao[] }) {
 							className="flex flex-col md:flex-row md:justify-between items-start md:items-center p-5 border rounded-xl shadow-sm bg-white hover:border-blue-200 transition">
 							<div className="flex flex-col">
 								<span className="font-bold text-lg text-gray-800">{item.compra}</span>
-								<span className="text-xs text-gray-400">{new Intl.DateTimeFormat("pt-BR").format(new Date(item.data_inicio))}</span>
+								<span className="text-xs text-gray-400">{new Intl.DateTimeFormat("pt-BR").format(new Date(item.data_pagamento))}</span>
 								<span className="text-sm text-gray-500">
 									{item.estabelecimento} • <span className="capitalize">{item.cartao.replace("_", " ")}</span> • {item.classificacao}
 								</span>
