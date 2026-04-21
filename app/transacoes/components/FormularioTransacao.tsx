@@ -1,56 +1,61 @@
 "use client";
 
 import { useState } from "react";
+import { TransacoesService } from "../../src/services/transacoes.service";
 
-export function FormularioTransacao({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: () => void }) {
+// Adicionamos o initialData como opcional (?)
+export function FormularioTransacao({ onSuccess, onCancel, initialData }: { onSuccess: () => void; onCancel: () => void; initialData?: any }) {
 	const [loading, setLoading] = useState(false);
+
+	// Função para garantir que a data que vem do banco (com T00:00:00Z) caiba no input type="date"
+	const formatarDataInput = (data?: string) => (data ? data.split("T")[0] : "");
+
+	// O estado inicial agora tenta pegar os dados do initialData. Se não tiver, usa o padrão vazio.
 	const [formData, setFormData] = useState({
-		compra: "",
-		estabelecimento: "",
-		razao_social: "",
-		acao: "",
-		tipo_1: "",
-		tipo_2: "",
-		classificacao: "",
-		cartao: "",
-		tipo: "Débito",
-		parcelamento: 1,
-		parcela: 1,
-		valor: "",
-		data_inicio: "",
-		data_fim: "",
+		compra: initialData?.compra || "",
+		estabelecimento: initialData?.estabelecimento || "",
+		razao_social: initialData?.razao_social || "",
+		acao: initialData?.acao || "pagamento",
+		tipo_1: initialData?.tipo_1 || "",
+		tipo_2: initialData?.tipo_2 || "",
+		classificacao: initialData?.classificacao || "",
+		cartao: initialData?.cartao || "nubank",
+		tipo: initialData?.tipo || "debito",
+		parcelamento: initialData?.parcelamento || 1,
+		parcela: initialData?.parcela || 1,
+		valor: initialData?.valor || "",
+		data_inicio: formatarDataInput(initialData?.data_inicio),
+		data_fim: formatarDataInput(initialData?.data_fim),
 	});
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setLoading(true);
 
-		// Ajuste do Payload para o formato exato que o seu Backend espera
+		const formatarDataParaBanco = (dataString: string): string => {
+			if (!dataString) return ""; // Retorna string vazia ao invés de null
+			return dataString.split("T")[0];
+		};
 		const payload = {
 			...formData,
-			valor: parseFloat(formData.valor),
-			parcelamento: formData.tipo === "Débito" ? 1 : Number(formData.parcelamento),
-			parcela: formData.tipo === "Débito" ? 1 : Number(formData.parcela),
-			// Se for débito, a data_fim é igual a data_inicio
-			data_fim: formData.tipo === "Débito" ? new Date(formData.data_inicio).toISOString() : new Date(formData.data_fim).toISOString(),
-			data_inicio: new Date(formData.data_inicio).toISOString(),
-		};
+			valor: parseFloat(String(formData.valor)),
+			parcelamento: formData.tipo === "debito" ? 1 : Number(formData.parcelamento),
+			parcela: formData.tipo === "debito" ? 1 : Number(formData.parcela),
+			data_inicio: formatarDataParaBanco(formData.data_inicio),
+			data_fim: formData.tipo === "debito" ? formatarDataParaBanco(formData.data_inicio) : formatarDataParaBanco(formData.data_fim),
+			tipo_2: formData.tipo_2 || null,
+		}; 
 
 		try {
-			const res = await fetch("https://finances-control-backend.onrender.com/transacoes", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(payload),
-			});
-
-			if (res.ok) {
-				onSuccess();
+			if (initialData) {
+				await TransacoesService.atualizar(initialData.id, payload);
 			} else {
-				const errorData = await res.json();
-				alert(`Erro: ${errorData.message || "Falha ao salvar"}`);
+				await TransacoesService.criar(payload);
 			}
+			onSuccess();
 		} catch (error) {
-			console.error("Erro na requisição:", error);
+			console.error(error);
+			alert("Falha ao salvar transação. Verifique os dados.");
 		} finally {
 			setLoading(false);
 		}
@@ -88,26 +93,38 @@ export function FormularioTransacao({ onSuccess, onCancel }: { onSuccess: () => 
 				/>
 			</div>
 
-			{/* Ação e Cartão */}
+			{/* Ação */}
 			<div>
 				<label className="block font-bold mb-1">Ação</label>
-				<input
+				<select
 					required
-					placeholder="Ex: Compra, Estorno"
-					className="w-full border p-2 rounded shadow-sm"
+					className="w-full border p-2 rounded shadow-sm bg-white"
 					value={formData.acao}
-					onChange={(e) => setFormData({ ...formData, acao: e.target.value })}
-				/>
+					onChange={(e) => setFormData({ ...formData, acao: e.target.value })}>
+					<option value="pagamento">Pagamento</option>
+					<option value="transferência">Transferência</option>
+					<option value="depósito">Depósito</option>
+					<option value="investimento">Investimento</option>
+					<option value="saque">Saque</option>
+				</select>
 			</div>
+
+			{/* Cartão */}
 			<div>
 				<label className="block font-bold mb-1">Cartão Usado</label>
-				<input
+				<select
 					required
-					placeholder="Ex: Nubank, Inter"
-					className="w-full border p-2 rounded shadow-sm"
+					className="w-full border p-2 rounded shadow-sm bg-white"
 					value={formData.cartao}
-					onChange={(e) => setFormData({ ...formData, cartao: e.target.value })}
-				/>
+					onChange={(e) => setFormData({ ...formData, cartao: e.target.value })}>
+					<option value="picpay">PicPay</option>
+					<option value="nubank">Nubank</option>
+					<option value="inter">Inter</option>
+					<option value="mercado_pago">Mercado Pago</option>
+					<option value="amazon">Amazon</option>
+					<option value="swile">Swile</option>
+					<option value="outro">Outro</option>
+				</select>
 			</div>
 
 			{/* Tipos e Classificação */}
@@ -152,19 +169,20 @@ export function FormularioTransacao({ onSuccess, onCancel }: { onSuccess: () => 
 					onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
 				/>
 			</div>
+			{/* Tipo Pagamento */}
 			<div>
 				<label className="block font-bold mb-1">Tipo Pagamento</label>
 				<select
-					className="w-full border p-2 rounded shadow-sm"
+					className="w-full border p-2 rounded shadow-sm bg-white"
 					value={formData.tipo}
 					onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}>
-					<option value="Débito">Débito</option>
-					<option value="Crédito">Crédito</option>
+					<option value="debito">Débito</option>
+					<option value="credito">Crédito</option>
 				</select>
 			</div>
 
 			{/* Condicionais de Crédito */}
-			{formData.tipo === "Crédito" && (
+			{formData.tipo === "credito" && (
 				<>
 					<div>
 						<label className="block font-bold mb-1">Total Parcelas</label>
@@ -198,7 +216,7 @@ export function FormularioTransacao({ onSuccess, onCancel }: { onSuccess: () => 
 			)}
 
 			<div>
-				<label className="block font-bold mb-1">{formData.tipo === "Crédito" ? "Data Início" : "Data"}</label>
+				<label className="block font-bold mb-1">{formData.tipo === "credito" ? "Data Início" : "Data"}</label>
 				<input
 					required
 					type="date"
@@ -217,7 +235,11 @@ export function FormularioTransacao({ onSuccess, onCancel }: { onSuccess: () => 
 					type="submit"
 					disabled={loading}
 					className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-xl font-bold shadow-lg disabled:bg-gray-400 transition">
-					{loading ? "Processando..." : "Salvar Transação"}
+					{loading ?
+						"Processando..."
+					: initialData ?
+						"Salvar Alterações"
+					:	"Salvar Transação"}
 				</button>
 			</div>
 		</form>

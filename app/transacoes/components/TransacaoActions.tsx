@@ -1,31 +1,32 @@
-"use client"; // Necessário para usar onClick
+"use client";
 
-export function TransacaoActions({ id, onDelete }: { id: number; onDelete: (id: number) => void }) {
-	const handleEdit = () => {
-		// Aqui você abriria o modal de edição (podemos usar uma lib como Shadcn/UI ou um simples state)
-		alert(`Editar transação ${id}`);
-	};
+import { TransacoesService } from "../../src/services/transacoes.service";
+import { Transacao } from "../../src/types/transacao.type";
 
+interface Props {
+	transacao: Transacao;
+	onDeleteSuccess: (id: string) => void;
+	onEdit: (transacao: Transacao) => void;
+}
+
+export function TransacaoActions({ transacao, onDeleteSuccess, onEdit }: Props) {
 	const handleDelete = async () => {
 		if (confirm("Tem certeza que deseja deletar?")) {
-			const res = await fetch(`https://finances-control-backend.onrender.com/transacoes/${id}`, {
-				method: "DELETE",
-			});
-
-			if (res.ok) {
-				onDelete(id); // Atualiza a lista na tela
-			} else {
+			try {
+				await TransacoesService.deletar(transacao.id);
+				onDeleteSuccess(transacao.id);
+			} catch (error) {
 				alert("Erro ao deletar");
 			}
 		}
 	};
 
 	return (
-		<div className="flex gap-2 mt-2">
-			<button onClick={handleEdit} className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition">
+		<div className="flex gap-2">
+			<button onClick={() => onEdit(transacao)} className="text-blue-600">
 				Editar
 			</button>
-			<button onClick={handleDelete} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition">
+			<button onClick={handleDelete} className="text-red-600">
 				Deletar
 			</button>
 		</div>
