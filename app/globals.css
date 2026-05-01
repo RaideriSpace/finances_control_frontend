@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+* {
+  box-sizing: border-box;
+}
+
 /* Estilização da Scrollbar para o Dark Mode */
 .dark-scrollbar::-webkit-scrollbar {
   width: 6px; /* Bem fininha e elegante */

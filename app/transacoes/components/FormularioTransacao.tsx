@@ -12,16 +12,16 @@ export function FormularioTransacao({ onSuccess, onCancel, initialData }: { onSu
 		compra: initialData?.compra || "",
 		estabelecimento: initialData?.estabelecimento || "",
 		razao_social: initialData?.razao_social || "",
-		acao: initialData?.acao || "pagamento",
+		acao: initialData?.acao || "compra",
 		tipo_1: initialData?.tipo_1 || "",
 		tipo_2: initialData?.tipo_2 || "",
 		classificacao: initialData?.classificacao || "",
-		cartao: initialData?.cartao || "nubank",
+		cartao: initialData?.cartao || "picpay",
 		tipo: initialData?.tipo || "debito",
 		parcelamento: initialData?.parcelamento || 1,
 		parcela: initialData?.parcela || 1,
 		valor: initialData?.valor || "",
-		data_inicio: formatarDataInput(initialData?.data_inicio),
+		data_inicio: initialData?.data_inicio ? formatarDataInput(initialData.data_inicio) : new Date().toISOString().split("T")[0],
 	});
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -101,6 +101,7 @@ export function FormularioTransacao({ onSuccess, onCancel, initialData }: { onSu
 			<div>
 				<label className={labelClass}>Ação</label>
 				<select required className={inputClass} value={formData.acao} onChange={(e) => setFormData({ ...formData, acao: e.target.value })}>
+					<option value="compra">Compra</option>
 					<option value="pagamento">Pagamento</option>
 					<option value="transferência">Transferência</option>
 					<option value="depósito">Depósito</option>

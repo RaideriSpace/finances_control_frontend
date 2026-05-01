@@ -3,7 +3,7 @@ export interface Transacao {
 	compra: string;
 	estabelecimento?: string;
 	razao_social: string;
-	acao: "pagamento" | "transferência" | "depósito" | "investimento" | "saque";
+	acao: "pagamento" | "transferência" | "depósito" | "investimento" | "saque" | "compra";
 	tipo_1: string;
 	tipo_2: string;
 	classificacao: string;
