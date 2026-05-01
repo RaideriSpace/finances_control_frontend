@@ -1,7 +1,6 @@
-import { AddTransacaoButton } from "./transacoes/components/AddTransacaoButton";
+import { AcoesRapidas } from "./transacoes/components/AcoesRapidas";
 import { ListaTransacoes } from "./transacoes/components/ListaTransacoes";
 
-// TransacoesPage.tsx
 export default async function TransacoesPage() {
 	const res = await fetch("https://finances-control-backend.onrender.com/transacoes", { cache: "no-store" });
 	const initialData = await res.json();
@@ -16,10 +15,9 @@ export default async function TransacoesPage() {
 						</h1>
 						<p className="text-slate-400 mt-1 text-sm font-medium">Gerencie suas despesas e receitas</p>
 					</div>
-					<AddTransacaoButton />
+					<AcoesRapidas />
 				</div>
 
-				{/* Agora a ListaTransacoes cuida de tudo: filtros e resumos */}
 				<ListaTransacoes initialData={initialData} />
 			</div>
 		</main>
