@@ -230,7 +230,6 @@ export function ListaTransacoes({ initialData }: { initialData: Transacao[] }) {
 						</h2>
 						<FormularioTransacao
 							initialData={transacaoEditando}
-							classificacoesExistentes={classificacoesUnicas} // PASSANDO AS CLASSIFICAÇÕES
 							onSuccess={() => {
 								setTransacaoEditando(null);
 								window.location.reload();
