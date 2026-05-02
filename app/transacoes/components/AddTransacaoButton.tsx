@@ -23,9 +23,7 @@ export function AddTransacaoButton({ classificacoesExistentes }: { classificacoe
 							Nova Transação
 						</h2>
 
-						<FormularioTransacao
-							classificacoesExistentes={classificacoesExistentes} // 2. Passamos para o Formulário!
-							onSuccess={() => {
+						<FormularioTransacao							onSuccess={() => {
 								setIsOpen(false);
 								window.location.reload();
 							}}
