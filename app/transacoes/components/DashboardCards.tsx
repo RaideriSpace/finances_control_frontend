@@ -10,15 +10,27 @@ interface DashboardCardsProps {
 
 /**
  * @component DashboardCards
- * @description Componente que exibe os cards de resumo financeiro
- * Implementa as novas regras de cálculo para Resumos
+ * @description Exibe os cards de resumo financeiro considerando dados acumulados até o mês atual
  */
 export function DashboardCards({ data }: DashboardCardsProps) {
-  // Cálculos para Saldos (débito)
+  const hoje = new Date();
+  const mesAtual = hoje.getMonth();
+  const anoAtual = hoje.getFullYear();
+
+  // Filtrar dados até o mês atual (inclusive)
+  const dadosAteHoje = useMemo(() => {
+    return data.filter(t => {
+      const dataT = new Date(t.data_pagamento);
+      return dataT.getFullYear() < anoAtual || 
+             (dataT.getFullYear() === anoAtual && dataT.getMonth() <= mesAtual);
+    });
+  }, [data, mesAtual, anoAtual]);
+
+  // Cálculos para Saldos (débito) - Acumulado
   const saldos = useMemo(() => {
     const accounts = ['picpay', 'inter', 'swile', 'outro'];
     return accounts.map((account) => {
-      const total = data.reduce((acc, t) => {
+      const total = dadosAteHoje.reduce((acc, t) => {
         if (t.cartao === account && t.tipo === 'debito') {
           const acoesSaida = ['pagamento', 'saque', 'transferência', 'compra'];
           return acoesSaida.includes(t.acao) ? acc - t.valor : acc + t.valor;
@@ -27,13 +39,13 @@ export function DashboardCards({ data }: DashboardCardsProps) {
       }, 0);
       return { account, total };
     });
-  }, [data]);
+  }, [dadosAteHoje]);
 
-  // Cálculos para Faturas (crédito)
+  // Cálculos para Faturas (crédito) - Acumulado
   const faturas = useMemo(() => {
     const accounts = ['picpay', 'inter', 'outro'];
     return accounts.map((account) => {
-      const total = data.reduce((acc, t) => {
+      const total = dadosAteHoje.reduce((acc, t) => {
         if (t.cartao === account && t.tipo === 'credito') {
           const acoesSaida = ['pagamento', 'saque', 'transferência', 'compra'];
           return acoesSaida.includes(t.acao) ? acc - t.valor : acc + t.valor;
@@ -42,26 +54,31 @@ export function DashboardCards({ data }: DashboardCardsProps) {
       }, 0);
       return { account, total };
     });
-  }, [data]);
+  }, [dadosAteHoje]);
 
-  // Cálculos para Resumos com as NOVAS REGRAS
+  // Cálculos para Resumos (Mês Atual + Regras Específicas)
   const resumos = useMemo(() => {
-    // Gasto do mês: soma tudo de negativo em débito do mês + os valores das faturas
-    const gastoDebitoNegativo = data.reduce((acc, t) => {
-      if (t.tipo === 'debito' && t.valor > 0) { // Valor positivo no banco mas representa saída
+    const transacoesMesAtual = data.filter(t => {
+      const dataT = new Date(t.data_pagamento);
+      return dataT.getMonth() === mesAtual && dataT.getFullYear() === anoAtual;
+    });
+
+    // Gasto do mês: soma tudo de negativo em débito do mês + os valores das faturas do mês
+    const gastoDebitoNegativo = transacoesMesAtual.reduce((acc, t) => {
+      if (t.tipo === 'debito' && t.valor > 0) {
         const acoesSaida = ['pagamento', 'saque', 'transferência', 'compra'];
         if (acoesSaida.includes(t.acao)) return acc + t.valor;
       }
       return acc;
     }, 0);
 
-    const totalFaturas = faturas.reduce((acc, f) => acc + Math.abs(f.total), 0);
-    const gastoDoMes = gastoDebitoNegativo + totalFaturas;
+    // Faturas do mês atual
+    const totalFaturasMes = faturas.reduce((acc, f) => acc + Math.abs(f.total), 0);
+    const gastoDoMes = gastoDebitoNegativo + totalFaturasMes;
 
-    // Previsão de saldo: valor fixo (3500 + 2152.5 + 1200) + todo valor positivo de depósito 
-    // que não seja do PROA, Swile ou Uliving no estabelecimento.
+    // Previsão de saldo: valor fixo (3500 + 2152.5 + 1200) + depósitos extras (acumulado)
     const valorFixo = 3500 + 2152.5 + 1200;
-    const depositosExtras = data.reduce((acc, t) => {
+    const depositosExtras = dadosAteHoje.reduce((acc, t) => {
       const estabelecimentosExcluidos = ['PROA', 'Swile', 'Uliving'];
       const acoesEntrada = ['depósito', 'rendimento', 'reembolso'];
       
@@ -76,10 +93,10 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 
     return [
       { label: 'Gasto do mês', value: -gastoDoMes },
-      { label: 'Previsão de saldo', value: previsaoSaldo },
-      { label: 'Restante', value: restante },
+      { label: 'Previsão de saldo', value: restante }, // Ajustado para mostrar o saldo real previsto após gastos
+      { label: 'Saldo Total', value: previsaoSaldo },
     ];
-  }, [data, faturas]);
+  }, [data, faturas, mesAtual, anoAtual, dadosAteHoje]);
 
   const getAccountLabel = (account: string): string => {
     const labels: Record<string, string> = {

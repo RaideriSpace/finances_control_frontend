@@ -38,10 +38,10 @@
   --color-dark-dark: #020104;
   --color-dark-ex-dark: #000000;
 
-  /* Estados */
-  --color-positive: #10B981;
-  --color-negative: #EF4444;
-  --color-neutral: #6B7280;
+  /* Estados - Contraste Otimizado */
+  --color-positive: #059669; /* Esmeralda escuro para melhor contraste em fundo claro */
+  --color-negative: #DC2626; /* Vermelho vibrante e escuro */
+  --color-neutral: #4B5563;
 
   /* Espaçamento */
   --spacing-xxs: 4px;

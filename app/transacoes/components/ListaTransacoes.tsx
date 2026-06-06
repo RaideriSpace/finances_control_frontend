@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Transacao } from '../../src/types/transacao.type';
 import { formatarMoeda, formatarData, obterClasseCorValor } from '@/app/core/presentation/utils/formatting';
 import { IoSearch } from 'react-icons/io5';
@@ -14,18 +14,24 @@ interface ListaTransacoesProps {
 
 /**
  * @component ListaTransacoes
- * @description Exibe a lista de transações com filtros em linha única e design RaideriSpace
+ * @description Exibe a lista de transações filtrada pelo mês atual por padrão
  */
 export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
   const [transacoes, setTransacoes] = useState<Transacao[]>(initialData);
   const [transacaoEditando, setTransacaoEditando] = useState<Transacao | null>(null);
 
-  // Estados dos Filtros
+  // Mês atual no formato YYYY-MM
+  const currentMonth = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }, []);
+
+  // Estados dos Filtros - Inicializa com o mês atual
   const [busca, setBusca] = useState("");
   const [filtroCartao, setFiltroCartao] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroClassificacao, setFiltroClassificacao] = useState("");
-  const [filtroMes, setFiltroMes] = useState("");
+  const [filtroMes, setFiltroMes] = useState(currentMonth);
 
   const removerDaLista = (id: string) => {
     setTransacoes((prev) => prev.filter((t) => t.id !== id));
@@ -58,7 +64,8 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 
   return (
     <>
-      <DashboardCards data={transacoesFiltradas} />
+      {/* DashboardCards agora recebe TODOS os dados para calcular o acumulado internamente */}
+      <DashboardCards data={transacoes} />
 
       <section className="space-y-6">
         <h2 className="text-center font-space-grotesk font-bold text-2xl text-slate-900 mb-6">Lançamentos</h2>
