@@ -1,47 +1,41 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-* {
-  box-sizing: border-box;
-}
-
-/* Variáveis de Cores do Styleguide RailLink */
-:root {
+@theme {
   /* Cores Primárias */
-  --color-primary-2: #120920;
-  --color-primary-1: #281645;
-  --color-primary: #3F2667;
-  --color-primary-1-plus: #583989;
-  --color-primary-2-plus: #BC73B5;
+  --color-primary-1: #120920;
+  --color-primary-2: #281645;
+  --color-primary-3: #3F2667;
+  --color-primary-4: #583989;
+  --color-primary-5: #BC73B5;
 
   /* Cores Secundárias */
-  --color-secondary-2: #610530;
-  --color-secondary-1: #8D1360;
-  --color-secondary: #E0F79;
-  --color-secondary-1-plus: #E1594;
-  --color-secondary-2-plus: #EBADCA;
+  --color-secondary-1: #610530;
+  --color-secondary-2: #8D1360;
+  --color-secondary-3: #E0F79;
+  --color-secondary-4: #E1594;
+  --color-secondary-5: #EBADCA;
 
   /* Cores Terciárias */
-  --color-tertiary-2: #003E47;
-  --color-tertiary-1: #0097AD;
-  --color-tertiary: #00C5E2;
-  --color-tertiary-1-plus: #ADD9;
-  --color-tertiary-2-plus: #B4E7F5;
+  --color-tertiary-1: #003E47;
+  --color-tertiary-2: #0097AD;
+  --color-tertiary-3: #00C5E2;
+  --color-tertiary-4: #ADD9;
+  --color-tertiary-5: #B4E7F5;
 
   /* Cores Auxiliares */
-  --color-auxiliary-1-2: #081423;
-  --color-auxiliary-1-1: #29436A;
-  --color-auxiliary-1: #3D58BA;
-  --color-auxiliary-2: #667080;
-  --color-auxiliary-2-1: #22250D;
-  --color-auxiliary-2-2: #9535C;
+  --color-auxiliary-1: #081423;
+  --color-auxiliary-2: #29436A;
+  --color-auxiliary-3: #3D58BA;
+  --color-auxiliary-4: #667080;
+  --color-auxiliary-5: #22250D;
+  --color-auxiliary-6: #9535C;
 
-  /* Cores Escuras */
-  --color-dark: #000000;
-  --color-dark-1: #020104;
-  --color-dark-2: #353181;
+  /* Cores Dark */
+  --color-dark-1: #000000;
+  --color-dark-2: #020104;
+  --color-dark-3: #353181;
 
-  /* Estados de Transação */
+  /* Estados */
   --color-positive: #10B981;
   --color-negative: #EF4444;
   --color-neutral: #6B7280;
