@@ -4,6 +4,54 @@
   box-sizing: border-box;
 }
 
+/* Variáveis de Cores do Styleguide */
+:root {
+  /* Cores Primárias */
+  --color-primary-2: #120920;
+  --color-primary-1: #281645;
+  --color-primary: #3F2667;
+  --color-primary-1-plus: #583989;
+  --color-primary-2-plus: #BC7385;
+
+  /* Cores Secundárias */
+  --color-secondary-2: #610530;
+  --color-secondary-1: #B91360;
+  --color-secondary: #EDF79;
+  --color-secondary-1-plus: #E1B94;
+  --color-secondary-2-plus: #EBADCA;
+
+  /* Cores Terciárias */
+  --color-tertiary-2: #003E47;
+  --color-tertiary-1: #0097AD;
+  --color-tertiary: #00C5E2;
+  --color-tertiary-1-plus: #B4E7F5;
+  --color-tertiary-2-plus: #B4E7F5;
+
+  /* Cores Auxiliares */
+  --color-auxiliary-1-2: #081423;
+  --color-auxiliary-1-1: #29436A;
+  --color-auxiliary-1: #3D58BA;
+  --color-auxiliary-2: #687080;
+  --color-auxiliary-2-1: #D3D58A;
+  --color-auxiliary-2-2: #D3D4DF;
+
+  /* Cores Escuras */
+  --color-dark: #000000;
+  --color-dark-1: #020104;
+  --color-dark-2: #232649;
+  --color-dark-3-plus: #262649;
+}
+
+/* Tipografia */
+body {
+  font-family: var(--font-inter, system-ui, sans-serif);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-space-grotesk, system-ui, sans-serif);
+  font-weight: 700;
+}
+
 /* Estilização da Scrollbar para o Dark Mode */
 .dark-scrollbar::-webkit-scrollbar {
   width: 6px; /* Bem fininha e elegante */
