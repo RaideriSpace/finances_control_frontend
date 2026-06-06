@@ -100,7 +100,7 @@ export function DashboardCards({ data }: DashboardCardsProps) {
     >
       {/* Card Saldos */}
       <article 
-        className="card bg-white border-l-4 border-l-primary-3 rounded-lg"
+        className="card bg-white border-l-4 border-l-primary rounded-lg"
         role="region"
         aria-label="Saldos por conta"
       >
@@ -126,7 +126,7 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 
       {/* Card Faturas */}
       <article 
-        className="card bg-white border-l-4 border-l-secondary-3 rounded-lg"
+        className="card bg-white border-l-4 border-l-secondary rounded-lg"
         role="region"
         aria-label="Faturas por cartão"
       >
@@ -152,7 +152,7 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 
       {/* Card Resumos */}
       <article 
-        className="card bg-white border-l-4 border-l-tertiary-3 rounded-lg"
+        className="card bg-white border-l-4 border-l-tertiary rounded-lg"
         role="region"
         aria-label="Resumo financeiro"
       >

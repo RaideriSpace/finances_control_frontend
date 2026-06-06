@@ -22,7 +22,7 @@ export function Footer() {
           <div className="flex flex-col items-center md:items-start gap-2">
             <Link 
               href="/" 
-              className="inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary-3 rounded-lg"
+              className="inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary rounded-lg"
               aria-label="RailLink - Gerenciador Financeiro"
             >
               <Image
@@ -43,19 +43,19 @@ export function Footer() {
           >
             <Link 
               href="/privacidade" 
-              className="text-sm text-slate-600 hover:text-primary-3 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-3 rounded px-2 py-1"
+              className="text-sm text-slate-600 hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1"
             >
               Privacidade
             </Link>
             <Link 
               href="/termos" 
-              className="text-sm text-slate-600 hover:text-primary-3 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-3 rounded px-2 py-1"
+              className="text-sm text-slate-600 hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1"
             >
               Termos de Uso
             </Link>
             <Link 
               href="/contato" 
-              className="text-sm text-slate-600 hover:text-primary-3 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-3 rounded px-2 py-1"
+              className="text-sm text-slate-600 hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1"
             >
               Contato
             </Link>
