@@ -1,0 +1,26 @@
+# Robots.txt para RailLink - Gerenciador Financeiro
+# Otimizado para SEO
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /*.json$
+Disallow: /?*sort=
+Disallow: /search?
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://raillink.com/sitemap.xml
+
+# Google Search Console
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
