@@ -65,7 +65,7 @@ export function DashboardCards({ data }: DashboardCardsProps) {
       const estabelecimentosExcluidos = ['PROA', 'Swile', 'Uliving'];
       const acoesEntrada = ['depósito', 'rendimento', 'reembolso'];
       
-      if (acoesEntrada.includes(t.acao) && !estabelecimentosExcluidos.includes(t.estabelecimento)) {
+      if (acoesEntrada.includes(t.acao) && t.estabelecimento && !estabelecimentosExcluidos.includes(t.estabelecimento)) {
         return acc + t.valor;
       }
       return acc;
