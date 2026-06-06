@@ -32,18 +32,18 @@ export function formatarData(data: string | Date): string {
  * Obtém a cor baseada no valor (positivo/negativo)
  */
 export function obterCorValor(valor: number): string {
-  if (valor > 0) return COLORS.positive;
-  if (valor < 0) return COLORS.negative;
-  return COLORS.neutral;
+  if (valor > 0) return COLORS.states.positive;
+  if (valor < 0) return COLORS.states.negative;
+  return COLORS.states.neutral;
 }
 
 /**
  * Obtém a classe Tailwind para cor de valor
  */
 export function obterClasseCorValor(valor: number): string {
-  if (valor > 0) return 'text-green-600';
-  if (valor < 0) return 'text-red-600';
-  return 'text-gray-600';
+  if (valor > 0) return 'text-positive';
+  if (valor < 0) return 'text-negative';
+  return 'text-neutral';
 }
 
 /**

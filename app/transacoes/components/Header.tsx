@@ -4,64 +4,63 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AcoesRapidas } from './AcoesRapidas';
+import { ModalResumoAnual } from './ModalResumoAnual';
 import { IoMenu, IoClose } from 'react-icons/io5';
+import { Transacao } from '../../src/types/transacao.type';
+
+interface HeaderProps {
+  data: Transacao[];
+}
 
 /**
  * @component Header
- * @description Componente de header principal com navegação e logo
- * Implementa design responsivo e acessibilidade
+ * @description Componente de header principal com navegação e logo maior vazando
  */
-export function Header() {
+export function Header({ data }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [resumoAnualOpen, setResumoAnualOpen] = useState(false);
 
-  const handleMenuToggle = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
-  const handleMenuClose = () => {
-    setMobileMenuOpen(false);
-  };
+  const handleMenuToggle = () => setMobileMenuOpen(!mobileMenuOpen);
+  const handleMenuClose = () => setMobileMenuOpen(false);
 
   return (
     <header 
-      className="bg-gradient-to-b from-slate-100 to-slate-50 border-b border-slate-200 sticky top-0 z-40 shadow-sm"
+      className="bg-white border-b border-slate-200 sticky top-0 z-[100] shadow-sm h-[80px] flex items-center"
       role="banner"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 w-full flex items-center justify-between relative">
         {/* Desktop Layout */}
-        <div className="hidden md:flex items-center justify-between">
+        <div className="hidden md:flex items-center justify-between w-full">
           {/* Navegação à esquerda */}
           <nav className="flex items-center gap-8" aria-label="Navegação principal">
-            <Link 
-              href="/resumo-anual" 
-              className="text-sm font-semibold text-slate-700 hover:text-primary-3 transition-colors duration-200"
-              aria-label="Ir para Resumo do Ano"
+            <button 
+              onClick={() => setResumoAnualOpen(true)}
+              className="text-sm font-semibold text-slate-700 hover:text-primary transition-colors duration-200"
             >
               Resumo do Ano
-            </Link>
+            </button>
             <Link 
               href="/gastos-fixos" 
-              className="text-sm font-semibold text-slate-700 hover:text-primary-3 transition-colors duration-200"
-              aria-label="Ir para Gastos Fixos"
+              className="text-sm font-semibold text-slate-700 hover:text-primary transition-colors duration-200"
             >
               Gastos Fixos
             </Link>
           </nav>
 
-          {/* Logo centralizada */}
-          <div className="flex-shrink-0">
+          {/* Logo centralizada e MAIOR (vazando) */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/3">
             <Link 
               href="/" 
-              className="inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary-3 rounded-lg"
+              className="inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary rounded-full bg-white p-2 shadow-lg border border-slate-100 transition-transform hover:scale-110"
               aria-label="RailLink - Gerenciador Financeiro"
             >
               <Image
                 src="/assets/logo.png"
                 alt="Logo RailLink"
-                width={60}
-                height={60}
+                width={100}
+                height={100}
                 priority
-                className="h-16 w-auto"
+                className="h-24 w-auto object-contain"
               />
             </Link>
           </div>
@@ -73,69 +72,47 @@ export function Header() {
         </div>
 
         {/* Mobile Layout */}
-        <div className="md:hidden flex items-center justify-between">
-          {/* Logo à esquerda */}
+        <div className="md:hidden flex items-center justify-between w-full">
           <div className="flex-shrink-0">
-            <Link 
-              href="/" 
-              className="inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary-3 rounded-lg"
-              aria-label="RailLink - Gerenciador Financeiro"
-            >
-              <Image
-                src="/assets/logo.png"
-                alt="Logo RailLink"
-                width={48}
-                height={48}
-                priority
-                className="h-12 w-auto"
-              />
+            <Link href="/" className="inline-flex items-center justify-center">
+              <Image src="/assets/logo.png" alt="Logo RailLink" width={60} height={60} priority className="h-14 w-auto" />
             </Link>
           </div>
 
-          {/* Menu hamburger à direita */}
           <button
             onClick={handleMenuToggle}
-            className="text-slate-700 hover:text-slate-900 transition-colors duration-200 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-3"
+            className="text-slate-700 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-menu"
           >
-            {mobileMenuOpen ? (
-              <IoClose className="w-6 h-6" aria-hidden="true" />
-            ) : (
-              <IoMenu className="w-6 h-6" aria-hidden="true" />
-            )}
+            {mobileMenuOpen ? <IoClose className="w-6 h-6" /> : <IoMenu className="w-6 h-6" />}
           </button>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div 
-            id="mobile-menu"
-            className="md:hidden mt-4 pb-4 border-t border-slate-200 pt-4 animate-slide-in-up"
-          >
-            <nav className="flex flex-col gap-3 mb-4" aria-label="Navegação mobile">
-              <Link 
-                href="/resumo-anual" 
-                className="text-sm font-semibold text-slate-700 hover:text-primary-3 transition-colors duration-200 py-2 px-3 rounded-lg hover:bg-slate-100"
-                onClick={handleMenuClose}
+          <div className="md:hidden absolute top-[80px] left-0 right-0 bg-white border-b border-slate-200 p-4 shadow-xl animate-slide-in-up">
+            <nav className="flex flex-col gap-4">
+              <button 
+                onClick={() => { setResumoAnualOpen(true); handleMenuClose(); }}
+                className="text-left text-sm font-semibold text-slate-700 py-2"
               >
                 Resumo do Ano
-              </Link>
-              <Link 
-                href="/gastos-fixos" 
-                className="text-sm font-semibold text-slate-700 hover:text-primary-3 transition-colors duration-200 py-2 px-3 rounded-lg hover:bg-slate-100"
-                onClick={handleMenuClose}
-              >
+              </button>
+              <Link href="/gastos-fixos" className="text-sm font-semibold text-slate-700 py-2" onClick={handleMenuClose}>
                 Gastos Fixos
               </Link>
-            </nav>
-            <div className="flex gap-2">
               <AcoesRapidas />
-            </div>
+            </nav>
           </div>
         )}
       </div>
+
+      {/* Modal Resumo Anual */}
+      <ModalResumoAnual 
+        isOpen={resumoAnualOpen} 
+        onClose={() => setResumoAnualOpen(false)} 
+        data={data} 
+      />
     </header>
   );
 }
