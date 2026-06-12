@@ -84,6 +84,16 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 		outro: "border-x-tertiary-ex-dark",
 	};
 
+  const cartaoTagColor: Record<string, string> = {
+		picpay: "positive",
+		inter: "secondary",
+		mercado_pago: "auxiliary1",
+		amazon: "auxiliary2",
+		swile: "tertiary",
+		nubank: "primary-light",
+		outro: "tertiary-ex-dark",
+	};
+
 	return (
 		<>
 			<DashboardCards data={transacoes} />
@@ -158,8 +168,13 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 					</div>
 				:	<div className="flex flex-col gap-[2px]">
 						{transacoesFiltradas.map((t, index) => {
-							const isCredito = t.tipo === "credito";
+							let isNegative = true;
+              
+              if(t.acao === "depósito" || t.acao === "investimento" || t.acao === "rendimento") isNegative = false;
+
 							const borderColor = cartaoBorderColor[t.cartao] ?? "border-x-dark-light";
+              const tagColor = cartaoTagColor[t.cartao] ?? "dark-light";
+              const textTagColor = cartaoTagColor[t.cartao].includes("dark") ? "white" : "black"; 
 							const isFirst = index === 0;
 							const isLast = index === transacoesFiltradas.length - 1;
 							const roundedClass =
@@ -179,7 +194,7 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 									`}>
 									{/* Ícone do tipo */}
 									<div className="hidden sm:flex flex-shrink-0 w-9 h-9 rounded-s items-center justify-center bg-dark-dark border border-dark-light">
-										{isCredito ?
+										{isNegative ?
 											<IoCard className="w-4 h-4 text-secondary-light" />
 										:	<IoWallet className="w-4 h-4 text-tertiary" />}
 									</div>
@@ -202,10 +217,11 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 												{t.data_pagamento ? formatarData(t.data_pagamento) : "Pendente"}
 											</span>
 											<span className="text-dark-light">·</span>
-											<span className="text-[10px] font-bold uppercase tracking-wide px-xs py-[2px] rounded border border-primary/30 text-primary-ex-light bg-primary-dark/10">
+											<span
+												className={`text-[10px] font-bold uppercase tracking-wide px-xs py-[2px] rounded border border-primary/30 text-${textTagColor} bg-${tagColor}`}>
 												{t.cartao}
 											</span>
-											<span className="text-[10px] uppercase text-auxiliary2-light font-medium">{isCredito ? "Crédito" : "Débito"}</span>
+											<span className="text-[10px] uppercase text-auxiliary2-light font-medium">{isNegative ? "Crédito" : "Débito"}</span>
 											{t.parcelamento > 1 && (
 												<span className="text-[10px] text-auxiliary1-light">
 													{t.parcela}/{t.parcelamento}x
@@ -216,8 +232,8 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 
 									{/* Valor + Ações */}
 									<div className="flex items-center gap-s flex-shrink-0">
-										<span className={`text-base font-bold tabular-nums ${isCredito ? "text-negative" : "text-positive"}`}>
-											{isCredito ? "−" : "+"}
+										<span className={`text-base font-bold tabular-nums ${isNegative ? "text-negative" : "text-positive"}`}>
+											{isNegative ? "−" : "+"}
 											{formatarMoeda(t.valor)}
 										</span>
 
