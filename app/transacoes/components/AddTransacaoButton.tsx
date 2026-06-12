@@ -4,7 +4,7 @@ import { useState } from "react";
 import { IoClose, IoAdd } from "react-icons/io5";
 import { FormularioTransacao } from "./FormularioTransacao";
 
-export function AddTransacaoButton({ classificacoesExistentes }: { classificacoesExistentes?: string[] }) {
+export function AddTransacaoButton() {
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (

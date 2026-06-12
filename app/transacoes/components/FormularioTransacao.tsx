@@ -69,7 +69,7 @@ export function FormularioTransacao({ onSuccess, onCancel, initialData }: Formul
 	};
 
 	const inputClass =
-		"w-full bg-dark-dark border border-dark-light rounded-s px-m py-s text-sm text-white placeholder-auxiliary1 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all";
+		"w-full h-fit bg-dark-dark border border-dark-light rounded-s py-xs px-s text-sm text-white placeholder-auxiliary1 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all";
 	const labelClass = "flex items-center gap-xs text-[10px] font-bold text-auxiliary2-light uppercase tracking-widest mb-xs";
 	const iconClass = "w-3 h-3 text-auxiliary1-light";
 
@@ -272,7 +272,7 @@ export function FormularioTransacao({ onSuccess, onCancel, initialData }: Formul
 				<button
 					type="submit"
 					disabled={loading}
-					className="px-xl py-s text-sm font-bold text-white bg-primary hover:bg-primary-light disabled:opacity-50 rounded-s shadow-lg transition-all">
+					className="px-m py-xs text-sm h-fit font-bold text-white bg-primary hover:bg-primary-light disabled:opacity-50 rounded-s shadow-lg transition-all">
 					{loading ?
 						"Salvando..."
 					: initialData ?

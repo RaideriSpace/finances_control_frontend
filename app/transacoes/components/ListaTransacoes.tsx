@@ -75,13 +75,13 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 
 	// Cor da borda esquerda por conta/cartão
 	const cartaoBorderColor: Record<string, string> = {
-		picpay: "border-l-positive",
-		inter: "border-l-secondary",
-		mercado_pago: "border-l-auxiliary1",
-		amazon: "border-l-auxiliary2",
-		swile: "border-l-tertiary",
-		nubank: "border-l-primary-light",
-		outro: "border-l-dark-light",
+		picpay: "border-x-positive",
+		inter: "border-x-secondary",
+		mercado_pago: "border-x-auxiliary1",
+		amazon: "border-x-auxiliary2",
+		swile: "border-x-tertiary",
+		nubank: "border-x-primary-light",
+		outro: "border-x-tertiary-ex-dark",
 	};
 
 	return (
@@ -159,7 +159,7 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 				:	<div className="flex flex-col gap-[2px]">
 						{transacoesFiltradas.map((t, index) => {
 							const isCredito = t.tipo === "credito";
-							const borderColor = cartaoBorderColor[t.cartao] ?? "border-l-dark-light";
+							const borderColor = cartaoBorderColor[t.cartao] ?? "border-x-dark-light";
 							const isFirst = index === 0;
 							const isLast = index === transacoesFiltradas.length - 1;
 							const roundedClass =
@@ -172,9 +172,9 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 								<div
 									key={t.id}
 									className={`
-										bg-dark border border-dark-light border-l-4 ${borderColor} ${roundedClass}
-										flex items-center gap-m px-m py-s
-										hover:bg-dark-light/20 hover:border-primary/30
+										bg-dark border border-dark-light border-x-4 ${borderColor} ${roundedClass}
+										flex items-center gap-m px-s py-s
+										hover:bg-dark/20
 										transition-all duration-150
 									`}>
 									{/* Ícone do tipo */}
@@ -222,7 +222,7 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 										</span>
 
 										{/* Botões de ação — sempre visíveis */}
-										<div className="flex items-center gap-xs">
+										<div className="flex flex-col items-center gap-xs">
 											<button
 												type="button"
 												onClick={() => setTransacaoEditando(t)}
