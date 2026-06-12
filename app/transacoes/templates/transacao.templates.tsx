@@ -1,67 +1,48 @@
 import { TransacaoPayload } from "../../src/types/transacao.type";
 
-// Definição dos moldes de contas fixas
+// Usamos Partial<TransacaoPayload> porque o valor e a data serão preenchidos no modal
 export const TEMPLATES_FIXOS: Record<string, Partial<TransacaoPayload>> = {
-	// PAGAMENTOS
 	"Enel - Luz": {
 		compra: "Conta de Luz",
-		estabelecimento: "Enel",
+		local: "Enel", // <-- ATUALIZADO (era estabelecimento)
 		acao: "pagamento",
-		cartao: "inter",
+		classificacao_1: "Moradia", // <-- ATUALIZADO
 		tipo: "debito",
-		classificacao: "Contas Fixas",
-		tipo_1: "Casa",
-		tipo_2: "Energia",
 	},
 	"NN Negócios - Aluguel": {
 		compra: "Aluguel",
-		estabelecimento: "NN Negócios",
+		local: "NN Negócios", // <-- ATUALIZADO
 		acao: "pagamento",
-		cartao: "inter",
+		classificacao_1: "Moradia",
 		tipo: "debito",
-		classificacao: "Moradia",
-		tipo_1: "Casa",
-		tipo_2: "Aluguel",
 	},
 	"Vivo - Internet": {
 		compra: "Internet Fibra",
-		estabelecimento: "Vivo",
+		local: "Vivo", // <-- ATUALIZADO
 		acao: "pagamento",
-		cartao: "picpay",
+		classificacao_1: "Moradia",
 		tipo: "debito",
-		classificacao: "Contas Fixas",
-		tipo_1: "Serviços",
-		tipo_2: "Internet",
 	},
-	// RECEBIMENTOS
 	"PROA - Aulas": {
-		compra: "Pagamento Aulas",
-		estabelecimento: "Instituto PROA",
-		acao: "depósito",
-		cartao: "inter",
-		tipo: "debito",
-		classificacao: "Renda",
-		tipo_1: "Salário",
-		tipo_2: "Aulas",
+		compra: "Bolsa PROA",
+		local: "Instituto PROA", // <-- ATUALIZADO
+		acao: "rendimento",
+		classificacao_1: "Educação",
+		tipo: "credito", // ou 'debito' positivo se você registrar entradas assim
 	},
 	"Swile - Saldo Livre": {
-		compra: "Benefício Saldo Livre",
-		estabelecimento: "Swile",
-		acao: "depósito",
+		compra: "Benefício Swile",
+		local: "Swile", // <-- ATUALIZADO
+		acao: "rendimento",
+		classificacao_1: "Benefícios",
 		cartao: "swile",
-		tipo: "debito",
-		classificacao: "Benefícios",
-		tipo_1: "VR",
-		tipo_2: "Saldo Livre",
+		tipo: "credito",
 	},
 	"Uliving - Pagamento": {
-		compra: "Reembolso/Pagamento",
-		estabelecimento: "Uliving",
-		acao: "depósito",
-		cartao: "inter",
+		compra: "Pagamento Uliving",
+		local: "Uliving", // <-- ATUALIZADO
+		acao: "pagamento",
+		classificacao_1: "Moradia",
 		tipo: "debito",
-		classificacao: "Renda",
-		tipo_1: "Extra",
-		tipo_2: "Uliving",
 	},
 };

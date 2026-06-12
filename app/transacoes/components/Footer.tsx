@@ -1,84 +1,68 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
 
 /**
  * @component Footer
- * @description Componente de rodapé com logo e informações de copyright
- * Implementa design responsivo e acessibilidade
+ * @description Rodapé moderno, seguindo a paleta escura RaideriSpace
  */
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+	const currentYear = new Date().getFullYear();
 
-  return (
-    <footer 
-      className="bg-gradient-to-t from-slate-100 to-slate-50 border-t border-slate-200 mt-16 py-8"
-      role="contentinfo"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Logo e Branding */}
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <Link 
-              href="/" 
-              className="inline-flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary rounded-lg"
-              aria-label="RailLink - Gerenciador Financeiro"
-            >
-              <Image
-                src="/assets/logo.png"
-                alt="Logo RailLink"
-                width={48}
-                height={48}
-                className="h-12 w-auto"
-              />
-            </Link>
-            <p className="text-xs text-slate-600 font-medium">RailLink</p>
-          </div>
+	return (
+		<footer className="bg-dark-dark border-t border-dark-light py-xl mt-l" role="contentinfo">
+			<div className="max-w-7xl mx-auto px-s sm:px-l">
+				<div className="flex flex-col md:flex-row items-center justify-between gap-m">
+					{/* Logo e Branding */}
+					<div className="flex flex-col items-center md:items-start gap-xs">
+						<Link
+							href="/"
+							className="inline-flex items-center justify-center p-xs hover:bg-white/5 rounded-s transition-all"
+							aria-label="RailLink - Gerenciador Financeiro">
+							<Image
+								src="/assets/logo.png"
+								alt="Logo RailLink"
+								width={48}
+								height={48}
+								className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+							/>
+						</Link>
+						<p className="text-xs text-auxiliary2-ex-light font-bold tracking-widest uppercase">RailLink</p>
+					</div>
 
-          {/* Links Úteis */}
-          <nav 
-            className="flex flex-col md:flex-row items-center gap-6 md:gap-8"
-            aria-label="Links do rodapé"
-          >
-            <Link 
-              href="/privacidade" 
-              className="text-sm text-slate-600 hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1"
-            >
-              Privacidade
-            </Link>
-            <Link 
-              href="/termos" 
-              className="text-sm text-slate-600 hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1"
-            >
-              Termos de Uso
-            </Link>
-            <Link 
-              href="/contato" 
-              className="text-sm text-slate-600 hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1"
-            >
-              Contato
-            </Link>
-          </nav>
+					{/* Links Úteis */}
+					<nav className="flex flex-col md:flex-row items-center gap-m md:gap-l" aria-label="Links do rodapé">
+						{["Privacidade", "Termos de Uso", "Contato"].map((link) => (
+							<Link
+								key={link}
+								href={`/${link.toLowerCase().replace(" ", "-")}`}
+								className="text-sm text-auxiliary2-light hover:text-primary-ex-light transition-colors font-medium">
+								{link}
+							</Link>
+						))}
+					</nav>
 
-          {/* Copyright */}
-          <div className="text-center md:text-right">
-            <p className="text-xs text-slate-600">
-              <span className="font-semibold">RaideriSpace</span> © Copyright - {currentYear}
-            </p>
-            <p className="text-xs text-slate-500 mt-1">
-              Todos os direitos reservados
-            </p>
-          </div>
-        </div>
+					{/* Copyright */}
+					<div className="text-center md:text-right">
+						<p className="text-xs text-auxiliary2-light">
+							<span className="font-bold text-white">RaideriSpace</span> © {currentYear}
+						</p>
+						<p className="text-xs text-auxiliary2-light/60 mt-xs">Todos os direitos reservados</p>
+					</div>
+				</div>
 
-        {/* Divider */}
-        <div className="border-t border-slate-200 mt-6 pt-6">
-          <p className="text-center text-xs text-slate-500">
-            Desenvolvido com <span aria-label="amor">❤️</span> para gerenciar suas finanças
-          </p>
-        </div>
-      </div>
-    </footer>
-  );
+				{/* Divider sutil */}
+				<div className="border-t border-dark-light mt-m pt-m text-center">
+					<p className="text-xs text-auxiliary1-light">
+						Desenvolvido com{" "}
+						<span className="text-negative" aria-label="amor">
+							❤️
+						</span>{" "}
+						para organizar suas finanças
+					</p>
+				</div>
+			</div>
+		</footer>
+	);
 }

@@ -1,67 +1,6 @@
-@import "tailwindcss";
-
-@theme {
-  /* Cores - Padrão RaideriSpace */
-  --color-primary-ex-light: #8c73b5;
-  --color-primary-light: #583989;
-  --color-primary: #3f2667;
-  --color-primary-dark: #281645;
-  --color-primary-ex-dark: #120920;
-
-  --color-secondary-ex-light: #ebadca;
-  --color-secondary-light: #e15194;
-  --color-secondary: #e01f79;
-  --color-secondary-dark: #B91360;
-  --color-secondary-ex-dark: #610530;
-
-  --color-tertiary-ex-light: #84e7f5;
-  --color-tertiary-light: #1addf9;
-  --color-tertiary: #00c5e2;
-  --color-tertiary-dark: #0097ad;
-  --color-tertiary-ex-dark: #003e47;
-
-  --color-auxiliary1-ex-light: #9dacc3;
-  --color-auxiliary1-light: #5274a7;
-  --color-auxiliary1: #3d5b8a;
-  --color-auxiliary1-dark: #29436a;
-  --color-auxiliary1-ex-dark: #0b1423;
-
-  --color-auxiliary2-ex-light: #d3d4df;
-  --color-auxiliary2-light: #8f94bd;
-  --color-auxiliary2: #6870b0;
-  --color-auxiliary2-dark: #49539c;
-  --color-auxiliary2-ex-dark: #22295d;
-
-  --color-dark-ex-light: #535181;
-  --color-dark-light: #262447;
-  --color-dark: #121125;
-  --color-dark-dark: #020104;
-  --color-dark-ex-dark: #000000;
-
-  /* Estados - Contraste Otimizado */
-  --color-positive: #059669; /* Esmeralda escuro para melhor contraste em fundo claro */
-  --color-negative: #DC2626; /* Vermelho vibrante e escuro */
-  --color-neutral: #4B5563;
-
-  /* Espaçamento */
-  --spacing-xxs: 4px;
-  --spacing-xs: 8px;
-  --spacing-s: 16px;
-  --spacing-m: 24px;
-  --spacing-l: 32px;
-  --spacing-xl: 40px;
-  --spacing-xxl: 48px;
-  --spacing-xxxl: 64px;
-
-  /* Border Radius */
-  --radius-xs: 4px;
-  --radius-s: 8px;
-  --radius-m: 16px;
-  --radius-l: 24px;
-  --radius-xl: 32px;
-  --radius-xxl: 48px;
-  --radius-xxxl: 64px;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Tipografia */
 html {
@@ -71,7 +10,8 @@ html {
 
 body {
   font-family: 'Inter', sans-serif;
-  @apply bg-gradient-to-b from-slate-50 to-slate-100 text-slate-900;
+  /* Fundo escuro profundo e texto branco como base para o app inteiro */
+  @apply bg-dark-ex-dark text-white;
   margin: 0;
   padding: 0;
 }
@@ -88,7 +28,8 @@ a {
 }
 
 a:hover {
-  @apply text-primary;
+  /* Trocado para ex-light para dar melhor contraste no fundo preto */
+  @apply text-primary-ex-light;
 }
 
 button {
@@ -100,42 +41,50 @@ button:disabled {
   @apply opacity-50 cursor-not-allowed;
 }
 
+/* Inputs globais adaptados para o Dark Mode */
 input, textarea, select {
-  @apply transition-colors duration-200;
+  @apply transition-colors duration-200 bg-dark-dark border border-dark-light text-white placeholder-auxiliary2-light;
 }
 
 input:focus, textarea:focus, select:focus {
-  @apply outline-none ring-2 ring-primary;
+  @apply outline-none ring-2 ring-primary border-primary;
 }
 
-/* Cards */
+/* =========================================
+   Design System: Cards
+   ========================================= */
 .card {
-  @apply bg-white rounded-m shadow-sm border border-slate-200 p-m;
+  @apply bg-dark rounded-m shadow-lg border border-dark-light p-m;
   transition: all 0.3s ease;
 }
 
 .card:hover {
-  @apply shadow-md border-slate-300;
+  /* Efeito de flutuação com a borda acendendo levemente na cor primária */
+  @apply shadow-xl border-primary/40 -translate-y-1;
 }
 
-/* Badges */
+/* =========================================
+   Design System: Badges (Glassmorphism)
+   ========================================= */
 .badge {
-  @apply inline-flex items-center px-s py-xs rounded-full text-xs font-semibold;
+  @apply inline-flex items-center px-s py-xs rounded-full text-[10px] uppercase font-bold tracking-wider;
 }
 
 .badge-primary {
-  @apply bg-primary text-white;
+  @apply bg-primary-dark/20 text-primary-ex-light border border-primary/30;
 }
 
 .badge-secondary {
-  @apply bg-secondary text-white;
+  @apply bg-secondary-dark/20 text-secondary-ex-light border border-secondary/30;
 }
 
 .badge-tertiary {
-  @apply bg-tertiary text-dark-dark;
+  @apply bg-tertiary-dark/20 text-tertiary-ex-light border border-tertiary/30;
 }
 
-/* Valores Positivos e Negativos */
+/* =========================================
+   Design System: Valores Financeiros
+   ========================================= */
 .value-positive {
   @apply text-positive font-semibold;
 }
@@ -145,10 +94,13 @@ input:focus, textarea:focus, select:focus {
 }
 
 .value-neutral {
-  @apply text-neutral font-semibold;
+  /* Trocado de text-neutral (cinza escuro) para uma cor legível no Dark Mode */
+  @apply text-auxiliary2-ex-light font-semibold;
 }
 
-/* Acessibilidade */
+/* =========================================
+   Acessibilidade
+   ========================================= */
 .sr-only {
   position: absolute;
   width: 1px;

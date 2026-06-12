@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Transacao } from "../../src/types/transacao.type";
+import { IoCard, IoWallet } from "react-icons/io5";
 
 interface BigNumbersProps {
 	data: Transacao[];
@@ -12,15 +13,15 @@ interface BigNumbersProps {
 const BigNumbers = ({ data, account, credit = true }: BigNumbersProps) => {
 	const paymentMethod = credit ? "credito" : "debito";
 
-	// Mapeamos os bancos para a sua paleta RaideriSpace oficial
+	// Mapeamos os bancos para a sua paleta oficial
 	const brandColors: Record<string, string> = {
-		picpay: "bg-positive", // O verde do PicPay casa com a cor positiva
-		inter: "bg-secondary", // O Laranja/Rosa do Inter mapeado pro Secondary
-		mercado_pago: "bg-auxiliary1", // Azul escuro
-		amazon: "bg-dark", // Preto
-		swile: "bg-tertiary-dark", // Um tom de ciano mais escuro
-		nubank: "bg-primary", // Roxo RaideriSpace!
-		outro: "bg-auxiliary2", // Índigo
+		picpay: "bg-positive",
+		inter: "bg-secondary",
+		mercado_pago: "bg-auxiliary1",
+		amazon: "bg-dark",
+		swile: "bg-tertiary-dark",
+		nubank: "bg-primary",
+		outro: "bg-auxiliary2",
 	};
 
 	const accentColor = brandColors[account] || "bg-dark-light";
@@ -38,33 +39,36 @@ const BigNumbers = ({ data, account, credit = true }: BigNumbersProps) => {
 		}, 0);
 	}, [data, account, paymentMethod]);
 
-	// Usando diretamente as classes que você criou no globals.css!
 	const valueClass = accountResult >= 0 ? "value-positive" : "value-negative";
 	const accountTitle = account.replace("_", " ");
 
+	// Escolhe o ícone dinamicamente baseado no tipo da conta
+	const Icone = credit ? IoCard : IoWallet;
+
 	return (
-		// 1. Usamos a sua classe .card (que já tem padding, radius, shadow e fundo branco)
-		// 2. Adicionamos relative e overflow-hidden para o detalhe lateral
-		<div className="card relative overflow-hidden flex-1 min-w-[200px] flex flex-col justify-between">
-			{/* Detalhe de cor lateral para identificar o banco sutilmente */}
-			<div className={`absolute top-0 left-0 w-1.5 h-full ${accentColor}`} />
+		<div className="card flex-1 min-w-[260px] flex flex-col gap-m group hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+			{/* Cabeçalho do Card: Ícone + Título + Badge */}
+			<div className="flex items-center justify-between">
+				<div className="flex items-center gap-3">
+					{/* Círculo com a cor da marca e o ícone dentro */}
+					<div
+						className={`w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md ${accentColor} transition-transform group-hover:scale-110`}>
+						<Icone className="w-5 h-5" />
+					</div>
+					<span className="text-sm font-bold text-dark uppercase tracking-wider">{accountTitle}</span>
+				</div>
 
-			<div className="flex items-center justify-between mb-xs">
-				<span className="text-xs font-bold text-neutral uppercase tracking-wider ml-1">{accountTitle}</span>
-
-				{/* Usamos as cores ex-light como fundo e dark para o texto, gerando um badge suave */}
-				<span
-					className={`text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase ${
-						credit ? "bg-primary-ex-light/30 text-primary-dark" : "bg-auxiliary1-ex-light/30 text-auxiliary1-dark"
-					}`}>
-					{credit ? "Cartão" : "Saldo"}
-				</span>
+				{/* Badge usando o seu CSS global */}
+				<span className={`badge ${credit ? "badge-primary" : "badge-tertiary"}`}>{credit ? "Fatura" : "Saldo"}</span>
 			</div>
 
-			{/* Usamos sua tipografia e a classe de valor positivo/negativo */}
-			<span className={`text-3xl mt-s ml-1 ${valueClass}`}>
-				{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(accountResult)}
-			</span>
+			{/* Corpo do Card: Valor em destaque */}
+			<div className="mt-auto">
+				<p className="text-xs text-neutral mb-1 font-medium">Total acumulado</p>
+				<span className={`text-3xl tracking-tight ${valueClass}`}>
+					{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(accountResult)}
+				</span>
+			</div>
 		</div>
 	);
 };

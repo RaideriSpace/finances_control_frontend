@@ -25,16 +25,23 @@ export function TransacaoActions({ transacao, onDeleteSuccess, onEdit }: Props) 
 	};
 
 	return (
-		<div className="flex flex-col md:flex-row gap-2 w-full md:w-auto mt-4 md:mt-0">
+		<div className="flex items-center justify-center gap-xs">
+			{/* Botão de Editar */}
 			<button
 				onClick={() => onEdit(transacao)}
-				className="flex-1 md:flex-none bg-slate-800 hover:bg-slate-700 text-indigo-400 px-4 py-2 rounded-lg font-semibold text-sm transition-colors border border-slate-700 hover:border-indigo-500/50">
-				<FaEdit />
+				title="Editar transação"
+				className="p-xs bg-dark hover:bg-primary-dark/40 text-primary-ex-light border border-dark-light hover:border-primary/50 rounded-s transition-all duration-200 hover:scale-110 shadow-sm"
+				aria-label="Editar transação">
+				<FaEdit className="w-4 h-4" />
 			</button>
+
+			{/* Botão de Deletar */}
 			<button
 				onClick={handleDelete}
-				className="flex-1 md:flex-none bg-slate-800 hover:bg-slate-700 text-rose-400 px-4 py-2 rounded-lg font-semibold text-sm transition-colors border border-slate-700 hover:border-rose-500/50">
-				<FaTrashCan />
+				title="Deletar transação"
+				className="p-xs bg-dark hover:bg-negative/10 text-negative border border-dark-light hover:border-negative/40 rounded-s transition-all duration-200 hover:scale-110 shadow-sm"
+				aria-label="Deletar transação">
+				<FaTrashCan className="w-4 h-4" />
 			</button>
 		</div>
 	);
