@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Transacao } from "../../src/types/transacao.type";
 
 interface BigNumbersProps {
-	data: Transacao[]; // Mudamos de initialData para data (a lista filtrada)
+	data: Transacao[];
 	account: string;
 	credit?: boolean;
 }
@@ -12,25 +12,23 @@ interface BigNumbersProps {
 const BigNumbers = ({ data, account, credit = true }: BigNumbersProps) => {
 	const paymentMethod = credit ? "credito" : "debito";
 
-	// Mapeamento de cores de fundo
-	const bgConfigs: Record<string, string> = {
-		picpay: "bg-green-900/40",
-		inter: "bg-orange-900/40",
-		mercado_pago: "bg-yellow-900/40",
-		amazon: "bg-blue-900/40",
-		swile: "bg-slate-800",
-		nubank: "bg-purple-900/40",
-    outro: "bg-pink-900/40",
+	// Mapeamos os bancos para a sua paleta RaideriSpace oficial
+	const brandColors: Record<string, string> = {
+		picpay: "bg-positive", // O verde do PicPay casa com a cor positiva
+		inter: "bg-secondary", // O Laranja/Rosa do Inter mapeado pro Secondary
+		mercado_pago: "bg-auxiliary1", // Azul escuro
+		amazon: "bg-dark", // Preto
+		swile: "bg-tertiary-dark", // Um tom de ciano mais escuro
+		nubank: "bg-primary", // Roxo RaideriSpace!
+		outro: "bg-auxiliary2", // Índigo
 	};
 
-	const bgColor = bgConfigs[account] || "bg-slate-900";
+	const accentColor = brandColors[account] || "bg-dark-light";
 
 	const accountResult = useMemo(() => {
 		return data.reduce((acumulador, transacao) => {
-			// Só processa se o cartão e o tipo (crédito/débito) baterem
 			if (transacao.cartao === account && transacao.tipo === paymentMethod) {
 				const acoesSaida = ["pagamento", "saque", "transferência", "compra"];
-
 				if (acoesSaida.includes(transacao.acao)) {
 					return acumulador - transacao.valor;
 				}
@@ -38,17 +36,33 @@ const BigNumbers = ({ data, account, credit = true }: BigNumbersProps) => {
 			}
 			return acumulador;
 		}, 0);
-	}, [data, account, paymentMethod]); // Importante: depende da lista 'data'
+	}, [data, account, paymentMethod]);
 
-	const valueColor = accountResult >= 0 ? "text-emerald-400" : "text-rose-400";
+	// Usando diretamente as classes que você criou no globals.css!
+	const valueClass = accountResult >= 0 ? "value-positive" : "value-negative";
 	const accountTitle = account.replace("_", " ");
 
 	return (
-		<div className={`${bgColor} p-4 rounded-2xl border border-slate-800 shadow-lg flex-1 min-w-50 transition-all duration-500`}>
-			<span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-				{accountTitle} • {credit ? "Cartão" : "Saldo"}
-			</span>
-			<span className={`text-2xl font-bold ${valueColor}`}>
+		// 1. Usamos a sua classe .card (que já tem padding, radius, shadow e fundo branco)
+		// 2. Adicionamos relative e overflow-hidden para o detalhe lateral
+		<div className="card relative overflow-hidden flex-1 min-w-[200px] flex flex-col justify-between">
+			{/* Detalhe de cor lateral para identificar o banco sutilmente */}
+			<div className={`absolute top-0 left-0 w-1.5 h-full ${accentColor}`} />
+
+			<div className="flex items-center justify-between mb-xs">
+				<span className="text-xs font-bold text-neutral uppercase tracking-wider ml-1">{accountTitle}</span>
+
+				{/* Usamos as cores ex-light como fundo e dark para o texto, gerando um badge suave */}
+				<span
+					className={`text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase ${
+						credit ? "bg-primary-ex-light/30 text-primary-dark" : "bg-auxiliary1-ex-light/30 text-auxiliary1-dark"
+					}`}>
+					{credit ? "Cartão" : "Saldo"}
+				</span>
+			</div>
+
+			{/* Usamos sua tipografia e a classe de valor positivo/negativo */}
+			<span className={`text-3xl mt-s ml-1 ${valueClass}`}>
 				{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(accountResult)}
 			</span>
 		</div>
