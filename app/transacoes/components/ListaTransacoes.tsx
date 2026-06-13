@@ -194,7 +194,7 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 									`}>
 									{/* Ícone do tipo */}
 									<div className="hidden sm:flex flex-shrink-0 w-9 h-9 rounded-s items-center justify-center bg-dark-dark border border-dark-light">
-										{isNegative ?
+										{t.tipo === "credito" ?
 											<IoCard className="w-4 h-4 text-secondary-light" />
 										:	<IoWallet className="w-4 h-4 text-tertiary" />}
 									</div>
@@ -221,7 +221,7 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 												className={`text-[10px] font-bold uppercase tracking-wide px-xs py-[2px] rounded border border-primary/30 text-${textTagColor} bg-${tagColor}`}>
 												{t.cartao}
 											</span>
-											<span className="text-[10px] uppercase text-auxiliary2-light font-medium">{isNegative ? "Crédito" : "Débito"}</span>
+											<span className="text-[10px] uppercase text-auxiliary2-light font-medium">{t.tipo}</span>
 											{t.parcelamento > 1 && (
 												<span className="text-[10px] text-auxiliary1-light">
 													{t.parcela}/{t.parcelamento}x
@@ -233,7 +233,7 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 									{/* Valor + Ações */}
 									<div className="flex items-center gap-s flex-shrink-0">
 										<span className={`text-base font-bold tabular-nums ${isNegative ? "text-negative" : "text-positive"}`}>
-											{isNegative ? "−" : "+"}
+											{isNegative ? "-" : "+"}
 											{formatarMoeda(t.valor)}
 										</span>
 

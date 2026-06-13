@@ -10,15 +10,27 @@ export function AcoesRapidas() {
 
 	return (
 		<div className="flex items-center gap-xs">
-			{/* Contas Fixas — ação secundária, estilo ghost */}
+			{/* Contas Fixas — ghost com borda e brilho no hover */}
 			<button
 				onClick={() => setModalFixasOpen(true)}
-				className="flex items-center gap-xs border border-primary-light/50 hover:border-primary-light text-primary-ex-light hover:text-white px-m py-xs rounded-s font-bold transition-all active:scale-95">
-				<IoBookmarks className="w-4 h-4 text-secondary-light flex-shrink-0" />
-				<span className="hidden sm:inline text-sm">Contas Fixas</span>
+				className="
+					relative flex items-center gap-xs
+					px-m py-xs rounded-s
+					font-bold text-sm
+					border border-primary-light/30 hover:border-primary-light/70
+					text-primary-ex-light hover:text-white
+					transition-all duration-200 active:scale-95
+					overflow-hidden group
+				">
+				{/* Brilho sutil no hover */}
+				<span className="absolute inset-0 bg-primary-dark/0 group-hover:bg-primary-dark/40 transition-colors duration-200" />
+
+				<span className="relative flex items-center justify-center w-5 h-5 rounded-full bg-primary-dark/60 border border-primary/30 flex-shrink-0">
+					<IoBookmarks className="w-3 h-3 text-secondary-light" />
+				</span>
+				<span className="relative hidden sm:inline">Contas Fixas</span>
 			</button>
 
-			{/* Nova Transação — ação principal */}
 			<AddTransacaoButton />
 
 			<ModalContasFixas isOpen={modalFixasOpen} onClose={() => setModalFixasOpen(false)} onSuccess={() => window.location.reload()} />

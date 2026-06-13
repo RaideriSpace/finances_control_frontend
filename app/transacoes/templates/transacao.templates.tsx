@@ -4,45 +4,60 @@ import { TransacaoPayload } from "../../src/types/transacao.type";
 export const TEMPLATES_FIXOS: Record<string, Partial<TransacaoPayload>> = {
 	"Enel - Luz": {
 		compra: "Conta de Luz",
-		local: "Enel", // <-- ATUALIZADO (era estabelecimento)
+		local: "Enel",
 		acao: "pagamento",
-		classificacao_1: "Moradia", // <-- ATUALIZADO
+		classificacao_1: "Moradia",
+		classificacao_2: "Conta",
 		tipo: "debito",
 	},
 	"NN Negócios - Aluguel": {
 		compra: "Aluguel",
-		local: "NN Negócios", // <-- ATUALIZADO
+		local: "NN Negócios",
 		acao: "pagamento",
 		classificacao_1: "Moradia",
+		classificacao_2: "Conta",
 		tipo: "debito",
 	},
 	"Vivo - Internet": {
 		compra: "Internet Fibra",
-		local: "Vivo", // <-- ATUALIZADO
+		local: "Vivo",
 		acao: "pagamento",
 		classificacao_1: "Moradia",
+		classificacao_2: "Conta",
 		tipo: "debito",
 	},
 	"PROA - Aulas": {
-		compra: "Bolsa PROA",
-		local: "Instituto PROA", // <-- ATUALIZADO
+		compra: "Pagamento PROA",
+		local: "Instituto PROA",
 		acao: "rendimento",
 		classificacao_1: "Educação",
-		tipo: "credito", // ou 'debito' positivo se você registrar entradas assim
+		classificacao_2: "Salário",
+		tipo: "credito",
 	},
 	"Swile - Saldo Livre": {
 		compra: "Benefício Swile",
-		local: "Swile", // <-- ATUALIZADO
+		local: "Swile",
 		acao: "rendimento",
 		classificacao_1: "Benefícios",
+		classificacao_2: "Salário",
 		cartao: "swile",
 		tipo: "credito",
 	},
 	"Uliving - Pagamento": {
 		compra: "Pagamento Uliving",
-		local: "Uliving", // <-- ATUALIZADO
+		local: "Uliving",
 		acao: "pagamento",
 		classificacao_1: "Moradia",
+		classificacao_2: "Salário",
+		tipo: "debito",
+	},
+	"PicPay - Rendimentos": {
+		compra: "Rendimento PicPay",
+		local: "PicPay",
+		acao: "rendimento",
+		classificacao_1: "Investimentos",
+		classificacao_2: "Cofrinho",
+		cartao: "picpay",
 		tipo: "debito",
 	},
 };

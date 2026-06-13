@@ -2,10 +2,40 @@
 
 import { useState, useEffect } from "react";
 import { TransacaoPayload } from "../../src/types/transacao.type";
-import { IoBusiness, IoClose, IoFlash, IoGlobe, IoHome, IoSchool, IoWallet, IoCard, IoBookmarks } from "react-icons/io5";
+import { IoBusiness, IoClose, IoFlash, IoGlobe, IoHome, IoSchool, IoWallet, IoCard, IoBookmarks, IoCheckmark, IoCash } from "react-icons/io5";
 import { TEMPLATES_FIXOS } from "../templates/transacao.templates";
+import { TransacoesService } from "../../src/services/transacoes.service";
 
-export function ModalContasFixas({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose: () => void; onSuccess: () => void }) {
+interface ModalContasFixasProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onSuccess: () => void;
+}
+
+const PAGAMENTOS = [
+	{ label: "Enel - Luz", icon: <IoFlash />, key: "Enel - Luz" },
+	{ label: "NN Negócios - Aluguel", icon: <IoHome />, key: "NN Negócios - Aluguel" },
+	{ label: "Vivo - Internet", icon: <IoGlobe />, key: "Vivo - Internet" },
+];
+
+const RECEBIMENTOS = [
+	{ label: "PROA - Aulas", icon: <IoSchool />, key: "PROA - Aulas" },
+	{ label: "Swile - Saldo Livre", icon: <IoWallet />, key: "Swile - Saldo Livre" },
+	{ label: "Uliving - Pagamento", icon: <IoBusiness />, key: "Uliving - Pagamento" },
+	{ label: "PicPay - Rendimentos", icon: <IoCash />, key: "PicPay - Rendimentos" },
+];
+
+const CARTAO_LABELS: Record<string, string> = {
+	picpay: "PicPay",
+	nubank: "Nubank",
+	inter: "Inter",
+	mercado_pago: "Mercado Pago",
+	amazon: "Amazon",
+	swile: "Swile",
+	outro: "Outro",
+};
+
+export function ModalContasFixas({ isOpen, onClose, onSuccess }: ModalContasFixasProps) {
 	const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 	const [valor, setValor] = useState("");
 	const [cartao, setCartao] = useState<string>("picpay");
@@ -14,44 +44,45 @@ export function ModalContasFixas({ isOpen, onClose, onSuccess }: { isOpen: boole
 	useEffect(() => {
 		if (selectedTemplate) {
 			const template = TEMPLATES_FIXOS[selectedTemplate];
-			if (template.cartao) {
-				setCartao(template.cartao);
-			}
+			if (template.cartao) setCartao(template.cartao);
 		}
 	}, [selectedTemplate]);
 
+	// Reset ao fechar
+	useEffect(() => {
+		if (!isOpen) {
+			setSelectedTemplate(null);
+			setValor("");
+			setCartao("picpay");
+		}
+	}, [isOpen]);
+
 	const handleSalvar = async () => {
 		if (!selectedTemplate || !valor) return;
-
 		setLoading(true);
 		const template = TEMPLATES_FIXOS[selectedTemplate];
 
 		const payload: TransacaoPayload = {
-			...(template as TransacaoPayload),
-			valor: parseFloat(valor),
-			cartao: cartao as any,
-			data_inicio: new Date().toISOString(),
-			parcela: 1,
-			parcelamento: 1,
-			// Como o DB novo tem 'local' em vez de 'estabelecimento/razao_social', ajuste se necessário:
+			compra: template.compra || "",
 			local: template.local || "",
+			acao: template.acao || "compra",
+			classificacao_1: template.classificacao_1 || "",
+			classificacao_2: template.classificacao_2 || "",
+			cartao: cartao as any,
+			tipo: "debito",
+			valor: parseFloat(valor),
+			parcelamento: 1,
+			parcela: 1,
+			data_inicio: new Date(new Date().toISOString().split("T")[0]).toISOString(),
 		};
 
 		try {
-			const res = await fetch("https://finances-control-backend.onrender.com/transacoes", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(payload),
-			});
-
-			if (res.ok) {
-				onSuccess();
-				setValor("");
-				setSelectedTemplate(null);
-				onClose();
-			}
+			await TransacoesService.criar(payload);
+			onSuccess();
+			onClose();
 		} catch (error) {
 			console.error("Erro ao salvar conta fixa:", error);
+			alert("Erro ao salvar. Tente novamente.");
 		} finally {
 			setLoading(false);
 		}
@@ -59,148 +90,174 @@ export function ModalContasFixas({ isOpen, onClose, onSuccess }: { isOpen: boole
 
 	if (!isOpen) return null;
 
+	const inputClass =
+		"w-full bg-dark-dark border border-dark-light rounded-s py-xs px-s text-sm text-white placeholder-auxiliary1/60 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all";
+	const labelClass = "block text-[10px] font-bold text-auxiliary2-light uppercase tracking-widest mb-xs";
+
 	return (
-		<div className="fixed inset-0 bg-dark-ex-dark/80 backdrop-blur-md flex items-center justify-center z-[1001] p-m animate-fade-in">
-			{/* Usando sua classe de card global */}
-			<div className="card w-full max-w-lg p-xl border-0 shadow-2xl animate-slide-in-up">
-				<div className="flex justify-between items-center mb-l">
-					<h2 className="text-2xl font-bold text-white flex items-center gap-s font-space-grotesk">
-						<span className="w-10 h-10 rounded-full bg-secondary-dark/50 border border-secondary/30 flex items-center justify-center text-secondary-ex-light text-lg">
-							<IoBookmarks />
+		<div
+			className="fixed inset-0 z-[1001] flex items-center justify-center p-m"
+			style={{ backgroundColor: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)" }}>
+			<div className="bg-dark border border-dark-light rounded-xl shadow-2xl w-full max-w-md flex flex-col max-h-[90vh]">
+				{/* ── HEADER ── */}
+				<div className="flex items-center justify-between px-l pt-l pb-m border-b border-dark-light flex-shrink-0">
+					<div className="flex items-center gap-s">
+						<span className="w-9 h-9 rounded-s bg-secondary-dark/50 border border-secondary/30 flex items-center justify-center text-secondary-light flex-shrink-0">
+							<IoBookmarks className="w-4 h-4" />
 						</span>
-						Contas Fixas
-					</h2>
-					<button onClick={onClose} className="p-xs hover:bg-white/10 rounded-full transition-colors">
-						<IoClose className="w-8 h-8 text-auxiliary2-light hover:text-white" />
+						<div>
+							<h2 className="font-space-grotesk font-bold text-lg text-white leading-tight">Contas Fixas</h2>
+							<p className="text-[10px] text-auxiliary2-light uppercase tracking-widest">Lançamento rápido</p>
+						</div>
+					</div>
+					<button
+						type="button"
+						onClick={onClose}
+						className="p-xs rounded-full hover:bg-white/10 text-auxiliary2-light hover:text-white transition-colors flex-shrink-0">
+						<IoClose className="w-5 h-5" />
 					</button>
 				</div>
 
-				<div className="space-y-m">
-					{/* ================= SEÇÃO PAGAMENTOS ================= */}
-					<div>
-						<p className="text-xs font-bold text-negative uppercase tracking-widest mb-xs flex items-center gap-2">
-							<span className="w-2 h-2 rounded-full bg-negative"></span>
-							Pagamentos (Saída)
-						</p>
-						<div className="grid grid-cols-1 gap-2">
-							<TemplateButton label="Enel - Luz" icon={<IoFlash />} selected={selectedTemplate} onClick={setSelectedTemplate} color="negative" />
+				{/* ── BODY (scrollável) ── */}
+				<div className="flex-1 overflow-y-auto px-l py-m space-y-m">
+					{/* Pagamentos */}
+					<div className="space-y-xs">
+						<div className="flex items-center gap-xs mb-s">
+							<span className="w-1.5 h-1.5 rounded-full bg-negative flex-shrink-0" />
+							<p className="text-[10px] font-bold text-negative uppercase tracking-widest">Saídas</p>
+						</div>
+						{PAGAMENTOS.map(({ label, icon, key }) => (
 							<TemplateButton
-								label="NN Negócios - Aluguel"
-								icon={<IoHome />}
-								selected={selectedTemplate}
-								onClick={setSelectedTemplate}
+								key={key}
+								label={label}
+								icon={icon}
+								isSelected={selectedTemplate === key}
+								onClick={() => setSelectedTemplate(selectedTemplate === key ? null : key)}
 								color="negative"
 							/>
-							<TemplateButton label="Vivo - Internet" icon={<IoGlobe />} selected={selectedTemplate} onClick={setSelectedTemplate} color="negative" />
-						</div>
+						))}
 					</div>
 
-					{/* ================= SEÇÃO RECEBIMENTOS ================= */}
-					<div>
-						<p className="text-xs font-bold text-positive uppercase tracking-widest mb-xs flex items-center gap-2">
-							<span className="w-2 h-2 rounded-full bg-positive"></span>
-							Recebimentos (Entrada)
-						</p>
-						<div className="grid grid-cols-1 gap-2">
-							<TemplateButton label="PROA - Aulas" icon={<IoSchool />} selected={selectedTemplate} onClick={setSelectedTemplate} color="positive" />
-							<TemplateButton
-								label="Swile - Saldo Livre"
-								icon={<IoWallet />}
-								selected={selectedTemplate}
-								onClick={setSelectedTemplate}
-								color="positive"
-							/>
-							<TemplateButton
-								label="Uliving - Pagamento"
-								icon={<IoBusiness />}
-								selected={selectedTemplate}
-								onClick={setSelectedTemplate}
-								color="positive"
-							/>
+					{/* Recebimentos */}
+					<div className="space-y-xs">
+						<div className="flex items-center gap-xs mb-s">
+							<span className="w-1.5 h-1.5 rounded-full bg-positive flex-shrink-0" />
+							<p className="text-[10px] font-bold text-positive uppercase tracking-widest">Entradas</p>
 						</div>
+						{RECEBIMENTOS.map(({ label, icon, key }) => (
+							<TemplateButton
+								key={key}
+								label={label}
+								icon={icon}
+								isSelected={selectedTemplate === key}
+								onClick={() => setSelectedTemplate(selectedTemplate === key ? null : key)}
+								color="positive"
+							/>
+						))}
 					</div>
 
-					{/* ================= ÁREA DE EDIÇÃO FINAL ================= */}
+					{/* Área de confirmação — aparece ao selecionar */}
 					{selectedTemplate && (
-						<div className="pt-m border-t border-dark-light animate-in fade-in slide-in-from-bottom-4">
-							<div className="grid md:grid-cols-2 gap-s">
-								{/* INPUT DE VALOR */}
+						<div className="pt-m border-t border-dark-light space-y-s">
+							<p className="text-[10px] font-bold text-primary-ex-light uppercase tracking-widest">Confirmar lançamento</p>
+
+							<div className="grid grid-cols-2 gap-s">
 								<div>
-									<label className="block text-xs font-bold text-auxiliary2-light uppercase mb-1 ml-1">Valor Final</label>
+									<label className={labelClass}>Valor (R$)</label>
 									<input
 										type="number"
 										placeholder="0,00"
-										// As classes base de input já vêm do globals.css, só ajustamos paddings específicos
-										className="w-full py-s px-m rounded-s"
+										step="0.01"
+										className={inputClass}
 										value={valor}
 										onChange={(e) => setValor(e.target.value)}
 										autoFocus
 									/>
 								</div>
-
-								{/* SELECT DE CARTÃO */}
 								<div>
-									<label className="block text-xs font-bold text-auxiliary2-light uppercase mb-1 ml-1">Conta de Destino</label>
+									<label className={labelClass}>Conta</label>
 									<div className="relative">
 										<select
-											className="w-full py-s px-m rounded-s appearance-none cursor-pointer"
+											className={inputClass + " pr-8 appearance-none cursor-pointer"}
 											value={cartao}
 											onChange={(e) => setCartao(e.target.value)}>
-											<option value="picpay">PicPay</option>
-											<option value="nubank">Nubank</option>
-											<option value="inter">Banco Inter</option>
-											<option value="mercado_pago">Mercado Pago</option>
-											<option value="amazon">Amazon</option>
-											<option value="swile">Swile</option>
-											<option value="outro">Outro</option>
+											{Object.entries(CARTAO_LABELS).map(([value, label]) => (
+												<option key={value} value={value}>
+													{label}
+												</option>
+											))}
 										</select>
-										<IoCard className="absolute right-4 top-1/2 -translate-y-1/2 text-auxiliary2-light pointer-events-none" />
+										<IoCard className="absolute right-3 top-1/2 -translate-y-1/2 text-auxiliary2-light pointer-events-none w-3 h-3" />
 									</div>
 								</div>
 							</div>
-
-							{/* BOTÃO SALVAR */}
-							<button
-								onClick={handleSalvar}
-								disabled={loading || !valor}
-								className="w-full mt-m bg-primary hover:bg-primary-light disabled:opacity-50 text-white font-bold py-s rounded-s transition-all shadow-lg shadow-primary/20 active:scale-[0.98] text-lg">
-								{loading ? "Processando..." : "Confirmar Lançamento"}
-							</button>
 						</div>
 					)}
+				</div>
+
+				{/* ── FOOTER ── */}
+				<div className="px-l pb-l pt-m border-t border-dark-light flex-shrink-0">
+					{selectedTemplate ?
+						<button
+							type="button"
+							onClick={handleSalvar}
+							disabled={loading || !valor}
+							className="w-full py-s text-sm font-bold text-white rounded-s bg-gradient-to-r from-primary to-primary-light hover:from-primary-light hover:to-primary shadow-lg shadow-primary/20 disabled:opacity-40 transition-all active:scale-[0.98]">
+							{loading ? "Processando..." : "Confirmar Lançamento"}
+						</button>
+					:	<button
+							type="button"
+							onClick={onClose}
+							className="w-full py-s text-sm font-bold text-auxiliary2-light hover:text-white border border-dark-light hover:border-auxiliary2-light rounded-s transition-all">
+							Cancelar
+						</button>
+					}
 				</div>
 			</div>
 		</div>
 	);
 }
 
-// Subcomponente de Botão
-function TemplateButton({ label, icon, selected, onClick, color }: any) {
-	const isSelected = selected === label;
+/* ── Subcomponente ── */
+interface TemplateButtonProps {
+	label: string;
+	icon: React.ReactNode;
+	isSelected: boolean;
+	onClick: () => void;
+	color: "negative" | "positive";
+}
 
-	// Usamos arbitrary values do tailwind para manter as variáveis do CSS de forma clara
-	const colorClasses =
+function TemplateButton({ label, icon, isSelected, onClick, color }: TemplateButtonProps) {
+	const colors =
 		color === "negative" ?
 			{
-				hover: "hover:border-negative/50 hover:bg-negative/5",
-				active: "bg-negative/20 border-negative text-white",
-				iconActive: "text-negative",
+				active: "bg-negative/10 border-negative text-white",
+				inactive: "bg-dark-dark/60 border-dark-light text-auxiliary2-light hover:border-negative/40 hover:bg-negative/5",
+				icon: isSelected ? "text-negative" : "text-auxiliary1-light",
 			}
 		:	{
-				hover: "hover:border-positive/50 hover:bg-positive/5",
-				active: "bg-positive/20 border-positive text-white",
-				iconActive: "text-positive",
+				active: "bg-positive/10 border-positive text-white",
+				inactive: "bg-dark-dark/60 border-dark-light text-auxiliary2-light hover:border-positive/40 hover:bg-positive/5",
+				icon: isSelected ? "text-positive" : "text-auxiliary1-light",
 			};
 
-	const activeClass = isSelected ? colorClasses.active : `bg-dark-dark/50 border-dark-light text-auxiliary2-light ${colorClasses.hover}`;
-
 	return (
-		<button onClick={() => onClick(label)} className={`flex items-center gap-s p-s rounded-s border transition-all duration-200 ${activeClass}`}>
-			<span className={`text-lg ${isSelected ? colorClasses.iconActive : "text-auxiliary1-light"}`}>{icon}</span>
-			<span className="font-semibold text-sm">{label}</span>
-
-			{/* Indicador visual de seleção à direita */}
-			{isSelected && <span className={`ml-auto w-2 h-2 rounded-full ${color === "negative" ? "bg-negative" : "bg-positive"}`}></span>}
+		<button
+			type="button"
+			onClick={onClick}
+			className={`
+				w-full flex items-center gap-s px-s py-xs rounded-s border
+				text-sm font-semibold transition-all duration-150
+				${isSelected ? colors.active : colors.inactive}
+			`}>
+			<span className={`text-base flex-shrink-0 ${colors.icon}`}>{icon}</span>
+			<span className="flex-1 text-left truncate">{label}</span>
+			{isSelected && (
+				<span
+					className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${color === "negative" ? "bg-negative" : "bg-positive"}`}>
+					<IoCheckmark className="w-3 h-3 text-white" />
+				</span>
+			)}
 		</button>
 	);
 }

@@ -7,6 +7,7 @@ import { AcoesRapidas } from "./AcoesRapidas";
 import { ModalResumoAnual } from "./ModalResumoAnual";
 import { IoMenu, IoClose } from "react-icons/io5";
 import { Transacao } from "../../src/types/transacao.type";
+import { ModalGastosFixos } from "./Modalgastosfixos";
 
 interface HeaderProps {
 	data: Transacao[];
@@ -15,6 +16,7 @@ interface HeaderProps {
 export function Header({ data }: HeaderProps) {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [resumoAnualOpen, setResumoAnualOpen] = useState(false);
+	const [gastosFixosOpen, setGastosFixosOpen] = useState(false);
 
 	const handleMenuToggle = () => setMobileMenuOpen(!mobileMenuOpen);
 	const handleMenuClose = () => setMobileMenuOpen(false);
@@ -30,11 +32,11 @@ export function Header({ data }: HeaderProps) {
 							className="text-sm font-semibold text-primary-ex-light hover:text-white transition-colors duration-200 tracking-wide uppercase">
 							Resumo do Ano
 						</button>
-						<Link
-							href="/gastos-fixos"
+						<button
+							onClick={() => setGastosFixosOpen(true)}
 							className="text-sm font-semibold text-primary-ex-light hover:text-white transition-colors duration-200 tracking-wide uppercase">
 							Gastos Fixos
-						</Link>
+						</button>
 					</nav>
 
 					<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
@@ -81,12 +83,11 @@ export function Header({ data }: HeaderProps) {
 								className="text-left text-sm font-semibold text-primary-ex-light hover:text-white py-xs transition-colors border-b border-primary-dark">
 								Resumo do Ano
 							</button>
-							<Link
-								href="/gastos-fixos"
-								className="text-sm font-semibold text-primary-ex-light hover:text-white py-xs transition-colors border-b border-primary-dark"
-								onClick={handleMenuClose}>
+							<button
+								onClick={() => setGastosFixosOpen(true)}
+								className="text-sm font-semibold text-primary-ex-light hover:text-white transition-colors duration-200 tracking-wide uppercase">
 								Gastos Fixos
-							</Link>
+							</button>
 							<div className="pt-xs">
 								<AcoesRapidas />
 							</div>
@@ -96,6 +97,7 @@ export function Header({ data }: HeaderProps) {
 			</div>
 
 			<ModalResumoAnual isOpen={resumoAnualOpen} onClose={() => setResumoAnualOpen(false)} data={data} />
+			<ModalGastosFixos isOpen={gastosFixosOpen} onClose={() => setGastosFixosOpen(false)} />
 		</header>
 	);
 }
