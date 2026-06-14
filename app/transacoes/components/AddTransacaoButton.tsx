@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { IoClose, IoAdd } from "react-icons/io5";
-import { FormularioTransacao } from "./FormularioTransacao";
+import { FormularioTransacao } from "./modals/FormularioTransacao";
 import { Transacao } from "../../src/types/transacao.type";
 
 interface AddTransacaoButtonProps {

@@ -2,22 +2,22 @@
 
 import { useState } from "react";
 import { AddTransacaoButton } from "./AddTransacaoButton";
-import { ModalContasFixas } from "./ModalContasFixas";
 import { IoBookmarks } from "react-icons/io5";
 import { Transacao } from "../../src/types/transacao.type";
+import { ModalContasRecorrentes } from "./modals/ModalRecorrentes";
 
 interface AcoesRapidasProps {
 	data: Transacao[];
 }
 
 export function AcoesRapidas({ data }: AcoesRapidasProps) {
-	const [modalFixasOpen, setModalFixasOpen] = useState(false);
+	const [modalRecorrentesOpen, setModalRecorrentesOpen] = useState(false);
 
 	return (
 		<div className="flex items-center gap-xs">
 			{/* Contas Fixas — ghost com borda e brilho no hover */}
 			<button
-				onClick={() => setModalFixasOpen(true)}
+				onClick={() => setModalRecorrentesOpen(true)}
 				className="
 					relative flex items-center gap-xs
 					px-m py-xs rounded-s
@@ -33,12 +33,12 @@ export function AcoesRapidas({ data }: AcoesRapidasProps) {
 				<span className="relative flex items-center justify-center w-5 h-5 rounded-full bg-primary-dark/60 border border-primary/30 flex-shrink-0">
 					<IoBookmarks className="w-3 h-3 text-secondary-light" />
 				</span>
-				<span className="relative hidden sm:inline">Contas Fixas</span>
-			</button>
+				<span className="relative hidden sm:inline">Recorrentes</span>
+			</button>			
 
 			<AddTransacaoButton transacoes={data} />
 
-			<ModalContasFixas isOpen={modalFixasOpen} onClose={() => setModalFixasOpen(false)} onSuccess={() => window.location.reload()} />
+			<ModalContasRecorrentes isOpen={modalRecorrentesOpen} onClose={() => setModalRecorrentesOpen(false)} onSuccess={() => window.location.reload()} />
 		</div>
 	);
 }

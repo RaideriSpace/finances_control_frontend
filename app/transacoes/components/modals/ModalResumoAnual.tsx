@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { IoClose, IoTrendingDown, IoTrendingUp, IoRemove } from "react-icons/io5";
-import { Transacao } from "../../src/types/transacao.type";
+import { Transacao } from "../../../src/types/transacao.type";
 import { formatarMoeda } from "@/app/core/presentation/utils/formatting";
 
 interface ModalResumoAnualProps {

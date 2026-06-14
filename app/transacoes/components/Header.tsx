@@ -4,10 +4,11 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AcoesRapidas } from "./AcoesRapidas";
-import { ModalResumoAnual } from "./ModalResumoAnual";
-import { IoMenu, IoClose } from "react-icons/io5";
+import { ModalResumoAnual } from "./modals/ModalResumoAnual";
+import { IoMenu, IoClose, IoTrendingUp, IoTrendingDown } from "react-icons/io5";
 import { Transacao } from "../../src/types/transacao.type";
-import { ModalGastosFixos } from "./Modalgastosfixos";
+import { ModalGastosFixos } from "./modals/Modalgastosfixos";
+import { ModalSaldoFixo } from "./modals/ModalSaldoFixos";
 
 interface HeaderProps {
 	data: Transacao[];
@@ -17,6 +18,7 @@ export function Header({ data }: HeaderProps) {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [resumoAnualOpen, setResumoAnualOpen] = useState(false);
 	const [gastosFixosOpen, setGastosFixosOpen] = useState(false);
+	const [saldoFixosOpen, setSaldoFixosOpen] = useState(false);
 
 	const handleMenuToggle = () => setMobileMenuOpen(!mobileMenuOpen);
 	const handleMenuClose = () => setMobileMenuOpen(false);
@@ -34,8 +36,41 @@ export function Header({ data }: HeaderProps) {
 						</button>
 						<button
 							onClick={() => setGastosFixosOpen(true)}
-							className="text-sm font-semibold text-primary-ex-light hover:text-white transition-colors duration-200 tracking-wide uppercase">
-							Gastos Fixos
+							className="
+                relative flex items-center justify-center gap-xs
+                p-xs rounded-s
+                font-bold text-sm
+                border border-primary-light/30 hover:border-primary-light/70
+                text-primary-ex-light hover:text-white
+                transition-all duration-200 active:scale-95
+                overflow-hidden group
+              ">
+							{/* Brilho sutil no hover */}
+							<span className="absolute inset-0 bg-primary-dark/0 group-hover:bg-primary-dark/40 transition-colors duration-200" />
+
+							<span className="relative flex items-center justify-center w-5 h-5 rounded-full bg-primary-dark/60 border border-primary/30 flex-shrink-0">
+								<IoTrendingDown className="w-3 h-3 text-negative" />
+							</span>
+							<span className="relative hidden sm:inline">Gastos Fixos</span>
+						</button>
+						<button
+							onClick={() => setSaldoFixosOpen(true)}
+							className="
+                relative flex items-center justify-center gap-xs
+                p-xs rounded-s
+                font-bold text-sm
+                border border-primary-light/30 hover:border-primary-light/70
+                text-primary-ex-light hover:text-white
+                transition-all duration-200 active:scale-95
+                overflow-hidden group
+              ">
+							{/* Brilho sutil no hover */}
+							<span className="absolute inset-0 bg-primary-dark/0 group-hover:bg-primary-dark/40 transition-colors duration-200" />
+
+							<span className="relative flex items-center justify-center w-5 h-5 rounded-full bg-primary-dark/60 border border-primary/30 flex-shrink-0">
+								<IoTrendingUp className="w-3 h-3 text-positive" />
+							</span>
+							<span className="relative hidden sm:inline">Saldos</span>
 						</button>
 					</nav>
 
@@ -100,6 +135,7 @@ export function Header({ data }: HeaderProps) {
 
 			<ModalResumoAnual isOpen={resumoAnualOpen} onClose={() => setResumoAnualOpen(false)} data={data} />
 			<ModalGastosFixos isOpen={gastosFixosOpen} onClose={() => setGastosFixosOpen(false)} />
+			<ModalSaldoFixo isOpen={saldoFixosOpen} onClose={() => setSaldoFixosOpen(false)} />
 		</header>
 	);
 }

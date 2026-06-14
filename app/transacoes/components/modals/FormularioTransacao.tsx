@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { TransacoesService } from "../../src/services/transacoes.service";
-import { Transacao, TransacaoPayload } from "../../src/types/transacao.type";
+import { TransacoesService } from "../../../src/services/transacoes.service";
+import { Transacao, TransacaoPayload } from "../../../src/types/transacao.type";
 import { IoCard, IoWallet, IoPricetag, IoStorefront, IoCalendar, IoCash, IoSwapHorizontal, IoLayers } from "react-icons/io5";
 
 interface FormularioTransacaoProps {

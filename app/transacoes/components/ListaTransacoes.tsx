@@ -7,7 +7,7 @@ import { IoSearch, IoFilter, IoClose, IoCalendar, IoCard, IoWallet } from "react
 import { FaEdit } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
 import { TransacoesService } from "../../src/services/transacoes.service";
-import { FormularioTransacao } from "./FormularioTransacao";
+import { FormularioTransacao } from "./modals/FormularioTransacao";
 import { DashboardCards } from "./DashboardCards";
 
 interface ListaTransacoesProps {
@@ -206,7 +206,8 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 										<div className="flex flex-wrap items-center gap-xs">
 											<span className="text-sm font-bold text-white truncate max-w-[200px] sm:max-w-none">{t.compra}</span>
 											{t.local && <span className="text-xs text-auxiliary2-light hidden sm:inline">· {t.local}</span>}
-											<span className="text-[10px] font-bold uppercase tracking-wide px-xs py-[2px] rounded border border-secondary/30 text-secondary-ex-light bg-secondary-dark/10 flex-shrink-0">
+											<span
+												className={`text-[10px] font-bold uppercase tracking-wide px-xs py-[2px] rounded border ${t.tipo === "credito" ? "border-secondary/30 text-secondary-ex-light bg-secondary-dark/10" : "border-tertiary/30 text-tertiary-ex-light bg-tertiary-dark/10"} flex-shrink-0`}>
 												{t.classificacao_1}
 											</span>
 										</div>
@@ -222,7 +223,9 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 												className={`text-[10px] font-bold uppercase tracking-wide px-xs py-[2px] rounded border border-primary/30 text-${textTagColor} bg-${tagColor}`}>
 												{t.cartao}
 											</span>
-											<span className="text-[10px] uppercase text-auxiliary2-light font-medium">{t.tipo}</span>
+											<span className={`text-[10px] uppercase ${t.tipo === "credito" ? "text-secondary" : "text-tertiary"} font-medium`}>
+												{t.tipo}
+											</span>
 											{t.parcelamento > 1 && (
 												<span className="text-[10px] text-auxiliary1-light">
 													{t.parcela}/{t.parcelamento}x
