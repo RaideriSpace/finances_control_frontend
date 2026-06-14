@@ -1,22 +1,15 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Transacao } from "../../src/types/transacao.type";
+import { Saldo } from "../../src/types/saldo.type";
 import { formatarMoeda } from "@/app/core/presentation/utils/formatting";
 import { IoWallet, IoCard, IoPieChart } from "react-icons/io5";
+import { SaldoService } from "../../src/services/saldo.service";
 
 interface DashboardCardsProps {
 	data: Transacao[];
 }
-
-// ─── Dados mockados de salários (substituir por entity do backend futuramente) ───
-const PREVISAO_SALARIOS: Record<string, number> = {
-	uliving: 3500,
-	proa: 2100,
-	swile: 1200,
-	outros: 0,
-};
-const PREVISAO_TOTAL = Object.values(PREVISAO_SALARIOS).reduce((a, b) => a + b, 0); // 6800
 
 // ─── Contas monitoradas ───
 const CONTAS_SALDO = ["picpay", "inter", "swile", "outro"] as const;
@@ -33,11 +26,29 @@ const CONTAS_SALDO_PROPRIAS = new Set(["picpay", "inter", "swile"]);
 const CONTAS_FATURA_PROPRIAS = new Set(["picpay", "inter"]);
 
 const ACOES_SAIDA = ["pagamento", "saque", "transferência", "compra"] as const;
+const ACOES_ENTRADA_PREVISAO = ["depósito", "investimento"] as const;
+
+// Locais cujas transações de entrada já são contabilizadas via SaldoFixo
+const LOCAIS_EXCLUIDOS_PREVISAO = ["uliving", "proa", "swile"];
+
+const FONTE_LABELS: Record<string, string> = {
+	uliving: "Uliving",
+	proa: "PROA",
+	swile: "Swile",
+};
 
 export function DashboardCards({ data }: DashboardCardsProps) {
 	const hoje = new Date();
 	const mesAtual = hoje.getMonth();
 	const anoAtual = hoje.getFullYear();
+
+	const [saldosFixos, setSaldosFixos] = useState<Saldo[]>([]);
+
+	useEffect(() => {
+		SaldoService.listarAtual()
+			.then(setSaldosFixos)
+			.catch(() => setSaldosFixos([]));
+	}, []);
 
 	// Transações do mês atual
 	const transacoesMes = useMemo(() => {
@@ -57,7 +68,7 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 				if (conta !== account) return acc;
 
 				if (t.tipo === "debito" && acoesEntrada.includes(t.acao)) return acc + t.valor;
-        else if (t.tipo === "debito" && !acoesEntrada.includes(t.acao)) return acc - t.valor;
+				else if (t.tipo === "debito" && !acoesEntrada.includes(t.acao)) return acc - t.valor;
 
 				return acc;
 			}, 0);
@@ -87,7 +98,6 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 
 	// ── RESUMO DO MÊS ──
 	const resumo = useMemo(() => {
-    
 		// Gasto do mês: compra + pagamento + transferência + saque no mês atual
 		const gastoDoMes = transacoesMes.reduce((acc, t) => {
 			if (t.tipo === "debito" && ACOES_SAIDA.includes(t.acao as any)) {
@@ -96,20 +106,28 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 			return acc;
 		}, 0);
 
-		// Previsão de saldo: dados mockados fixos
-		const previsaoSaldo = PREVISAO_TOTAL;
-		// + transacoesMes.reduce((acc, t) => {
-		// 	if (t.tipo === "debito" && ACOES_SAIDA.includes(t.acao as any)) {
-		// 		return acc + t.valor;
-		// 	}
-		// 	return acc;
-		// }, 0);;
+		// Total cadastrado em Saldos Fixos (ciclo vigente)
+		const totalSaldosFixos = saldosFixos.reduce((acc, s) => acc + (s.valor ?? 0), 0);
+
+		// Entradas do mês (débito + depósito/investimento) que NÃO sejam de Uliving, PROA ou Swile
+		const entradasMes = transacoesMes.reduce((acc, t) => {
+			if (t.tipo !== "debito" || !ACOES_ENTRADA_PREVISAO.includes(t.acao as any)) return acc;
+
+			const local = (t.local || "").toLowerCase();
+			const ehLocalExcluido = LOCAIS_EXCLUIDOS_PREVISAO.some((l) => local.includes(l));
+			if (ehLocalExcluido) return acc;
+
+			return acc + t.valor;
+		}, 0);
+
+		// Previsão de saldo: soma dos saldos fixos cadastrados + entradas extras do mês
+		const previsaoSaldo = totalSaldosFixos + entradasMes;
 
 		// Saldo Total: previsão - gasto
 		const saldoTotal = previsaoSaldo - gastoDoMes;
 
-		return { gastoDoMes, previsaoSaldo, saldoTotal };
-	}, [transacoesMes]);
+		return { gastoDoMes, previsaoSaldo, saldoTotal, totalSaldosFixos, entradasMes };
+	}, [transacoesMes, saldosFixos]);
 
 	const listItemClass =
 		"flex justify-between items-center py-xs border-b border-dark-light last:border-b-0 hover:bg-white/5 px-xs -mx-xs rounded transition-colors";
@@ -188,13 +206,12 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 						<p className="text-sm font-bold tabular-nums text-negative">−{formatarMoeda(resumo.gastoDoMes)}</p>
 					</div>
 
-					{/* Previsão de saldo — com breakdown no tooltip/subtexto */}
+					{/* Previsão de saldo — com breakdown no subtexto */}
 					<div className={listItemClass}>
 						<div>
 							<p className="text-xs font-semibold text-auxiliary2-ex-light">Previsão de saldo</p>
 							<p className="text-[10px] text-auxiliary1-light">
-								Uliving {formatarMoeda(PREVISAO_SALARIOS.uliving)} · PROA {formatarMoeda(PREVISAO_SALARIOS.proa)} · Swile{" "}
-								{formatarMoeda(PREVISAO_SALARIOS.swile)}
+								Fixos {formatarMoeda(resumo.totalSaldosFixos)} · Extras {formatarMoeda(resumo.entradasMes)}
 							</p>
 						</div>
 						<p className="text-sm font-bold tabular-nums text-positive">{formatarMoeda(resumo.previsaoSaldo)}</p>

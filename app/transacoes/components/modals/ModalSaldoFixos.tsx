@@ -19,6 +19,29 @@ const FONTE_LABELS: Record<string, string> = {
 	swile: "Swile",
 };
 
+const DIA_RESET_POR_FONTE: Record<string, number> = {
+	swile: 25,
+	proa: 20,
+	uliving: 5,
+};
+
+function calcularMesReferencia(fonte: string): string {
+	const hoje = new Date();
+	const diaReset = DIA_RESET_POR_FONTE[fonte.toLowerCase()] ?? 1;
+	let ano = hoje.getFullYear();
+	let mes = hoje.getMonth();
+
+	if (hoje.getDate() >= diaReset) {
+		mes += 1;
+		if (mes > 11) {
+			mes = 0;
+			ano += 1;
+		}
+	}
+
+	return `${ano}-${String(mes + 1).padStart(2, "0")}-01`;
+}
+
 function mesAtualISO() {
 	const d = new Date();
 	const ano = d.getFullYear();
@@ -87,7 +110,7 @@ export function ModalSaldoFixo({ isOpen, onClose, onSuccess }: ModalSaldoFixoPro
 		const payload: SaldoPayload = {
 			fonte: novaFonte.trim().toLowerCase(),
 			valor: Number(novoValor),
-			mes: mesAtualISO(),
+			mes: calcularMesReferencia(novaFonte),
 		};
 		try {
 			await SaldoService.criar(payload);
