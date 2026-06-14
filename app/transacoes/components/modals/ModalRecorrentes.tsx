@@ -7,7 +7,6 @@ import { TransacoesService } from "../../../src/services/transacoes.service";
 import { Recorrencia, RecorrenciaPayload } from "../../../src/types/recorrencia.type";
 import { RecorrenciasService } from "../../../src/services/recorrencias.service";
 
-
 interface ModalContasRecorrentesProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -162,8 +161,9 @@ export function ModalContasRecorrentes({ isOpen, onClose, onSuccess }: ModalCont
 		"w-full bg-dark-dark border border-dark-light rounded-s py-xs px-s text-sm text-white placeholder-auxiliary1/60 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all";
 	const labelClass = "block text-[10px] font-bold text-auxiliary2-light uppercase tracking-widest mb-xs";
 
-	const debitos = recorrencias.filter((r) => r.tipo === "debito");
-	const creditos = recorrencias.filter((r) => r.tipo === "credito");
+	const ganhos = recorrencias.filter((r) => ["depósito", "investimento"].includes(r.acao));
+
+	const gastos = recorrencias.filter((r) => !["depósito", "investimento"].includes(r.acao));
 
 	return (
 		<div
@@ -194,14 +194,15 @@ export function ModalContasRecorrentes({ isOpen, onClose, onSuccess }: ModalCont
 					{loading ?
 						<p className="text-xs text-auxiliary2-light text-center py-m">Carregando...</p>
 					:	<>
-							{/* Débitos */}
-							{debitos.length > 0 && (
+							{/* Gastos */}
+							{gastos.length > 0 && (
 								<div className="space-y-xs">
 									<div className="flex items-center gap-xs mb-s">
 										<IoArrowDown className="w-3 h-3 text-negative flex-shrink-0" />
-										<p className="text-[10px] font-bold text-negative uppercase tracking-widest">Débito</p>
+										<p className="text-[10px] font-bold text-negative uppercase tracking-widest">Gastos</p>
 									</div>
-									{debitos.map((rec) => (
+
+									{gastos.map((rec) => (
 										<RecorrenciaButton
 											key={rec.id}
 											recorrencia={rec}
@@ -214,14 +215,15 @@ export function ModalContasRecorrentes({ isOpen, onClose, onSuccess }: ModalCont
 								</div>
 							)}
 
-							{/* Créditos */}
-							{creditos.length > 0 && (
+							{/* Ganhos */}
+							{ganhos.length > 0 && (
 								<div className="space-y-xs">
 									<div className="flex items-center gap-xs mb-s">
 										<IoArrowUp className="w-3 h-3 text-positive flex-shrink-0" />
-										<p className="text-[10px] font-bold text-positive uppercase tracking-widest">Crédito</p>
+										<p className="text-[10px] font-bold text-positive uppercase tracking-widest">Ganhos</p>
 									</div>
-									{creditos.map((rec) => (
+
+									{ganhos.map((rec) => (
 										<RecorrenciaButton
 											key={rec.id}
 											recorrencia={rec}
@@ -454,7 +456,9 @@ function RecorrenciaButton({ recorrencia, isSelected, onClick, onRemove, color }
 					:	<IoWallet />}
 				</span>
 				<span className="flex-1 min-w-0">
-					<span className="block truncate">{recorrencia.local} - {recorrencia.compra}</span>
+					<span className="block truncate">
+						{recorrencia.local} - {recorrencia.compra}
+					</span>
 					<span className="block text-[10px] text-auxiliary2-light truncate">{recorrencia.classificacao_1}</span>
 				</span>
 				{isSelected && (
