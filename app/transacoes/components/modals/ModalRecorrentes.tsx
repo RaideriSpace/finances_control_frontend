@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { TransacaoPayload } from "../../../src/types/transacao.type";
-import { IoClose, IoCard, IoBookmarks, IoCheckmark, IoCash, IoWallet, IoAdd, IoTrashOutline, IoArrowDown, IoArrowUp } from "react-icons/io5";
+import { IoClose, IoCard, IoBookmarks, IoCheckmark, IoCash, IoWallet, IoAdd, IoTrashOutline, IoArrowDown, IoArrowUp, IoTrendingUp, IoTrendingDown } from "react-icons/io5";
 import { TransacoesService } from "../../../src/services/transacoes.service";
 import { Recorrencia, RecorrenciaPayload } from "../../../src/types/recorrencia.type";
 import { RecorrenciasService } from "../../../src/services/recorrencias.service";
@@ -442,6 +442,8 @@ function RecorrenciaButton({ recorrencia, isSelected, onClick, onRemove, color }
 				icon: isSelected ? "text-positive" : "text-auxiliary1-light",
 			};
 
+	const isGanho = ["depósito", "investimento"].includes(recorrencia.acao);
+
 	return (
 		<div
 			className={`
@@ -451,9 +453,9 @@ function RecorrenciaButton({ recorrencia, isSelected, onClick, onRemove, color }
 			`}>
 			<button type="button" onClick={onClick} className="flex-1 flex items-center gap-s text-left min-w-0">
 				<span className={`text-base flex-shrink-0 ${colors.icon}`}>
-					{recorrencia.tipo === "credito" ?
-						<IoCard />
-					:	<IoWallet />}
+					{isGanho ?
+						<IoTrendingUp />
+					:	<IoTrendingDown />}
 				</span>
 				<span className="flex-1 min-w-0">
 					<span className="block truncate">
