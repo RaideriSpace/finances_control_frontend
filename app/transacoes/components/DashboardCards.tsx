@@ -70,7 +70,8 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 				const dentroDoIntervalo = d.getFullYear() < anoAtual || (d.getFullYear() === anoAtual && d.getMonth() <= mesAtual);
 
 				if (t.cartao === account && t.tipo === "credito" && dentroDoIntervalo) {
-					return acc + t.valor;
+					if (t.acao === "compra") return acc + t.valor;       
+          if (t.acao === "depósito") return acc - t.valor;
 				}
 				return acc;
 			}, 0);
@@ -82,14 +83,20 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 	const resumo = useMemo(() => {
 		// Gasto do mês: compra + pagamento + transferência + saque no mês atual
 		const gastoDoMes = transacoesMes.reduce((acc, t) => {
-			if (ACOES_SAIDA.includes(t.acao as any)) {
+			if (t.tipo === "debito" && ACOES_SAIDA.includes(t.acao as any)) {
 				return acc + t.valor;
 			}
 			return acc;
 		}, 0);
 
 		// Previsão de saldo: dados mockados fixos
-		const previsaoSaldo = PREVISAO_TOTAL;
+		const previsaoSaldo = PREVISAO_TOTAL 
+    // + transacoesMes.reduce((acc, t) => {
+		// 	if (t.tipo === "debito" && ACOES_SAIDA.includes(t.acao as any)) {
+		// 		return acc + t.valor;
+		// 	}
+		// 	return acc;
+		// }, 0);;
 
 		// Saldo Total: previsão - gasto
 		const saldoTotal = previsaoSaldo - gastoDoMes;
