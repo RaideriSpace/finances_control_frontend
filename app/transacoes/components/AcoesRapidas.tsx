@@ -14,18 +14,18 @@ export function AcoesRapidas({ data }: AcoesRapidasProps) {
 	const [modalRecorrentesOpen, setModalRecorrentesOpen] = useState(false);
 
 	return (
-		<div className="flex items-center gap-xs">
+		<div className="w-full flex justify-center items-center gap-xs">
 			{/* Contas Fixas — ghost com borda e brilho no hover */}
 			<button
 				onClick={() => setModalRecorrentesOpen(true)}
 				className="
-					relative flex items-center gap-xs
+					w-1/2 relative flex items-center gap-xs
 					px-m py-xs rounded-s
 					font-bold text-sm
 					border border-primary-light/30 hover:border-primary-light/70
 					text-primary-ex-light hover:text-white
 					transition-all duration-200 active:scale-95
-					overflow-hidden group
+					overflow-hidden group justify-center
 				">
 				{/* Brilho sutil no hover */}
 				<span className="absolute inset-0 bg-primary-dark/0 group-hover:bg-primary-dark/40 transition-colors duration-200" />
@@ -34,11 +34,15 @@ export function AcoesRapidas({ data }: AcoesRapidasProps) {
 					<IoBookmarks className="w-3 h-3 text-secondary-light" />
 				</span>
 				<span className="relative hidden sm:inline">Recorrentes</span>
-			</button>			
+			</button>
 
 			<AddTransacaoButton transacoes={data} />
 
-			<ModalContasRecorrentes isOpen={modalRecorrentesOpen} onClose={() => setModalRecorrentesOpen(false)} onSuccess={() => window.location.reload()} />
+			<ModalContasRecorrentes
+				isOpen={modalRecorrentesOpen}
+				onClose={() => setModalRecorrentesOpen(false)}
+				onSuccess={() => window.location.reload()}
+			/>
 		</div>
 	);
 }

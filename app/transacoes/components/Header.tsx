@@ -107,30 +107,71 @@ export function Header({ data }: HeaderProps) {
 				</div>
 
 				{/* ================= MOBILE MENU ================= */}
-				{mobileMenuOpen && (
-					<div className="md:hidden absolute top-[80px] left-0 right-0 bg-primary-ex-dark border-b border-primary-dark p-m shadow-xl">
-						<nav className="flex flex-col gap-s">
-							<button
-								onClick={() => {
-									setResumoAnualOpen(true);
-									handleMenuClose();
-								}}
-								className="text-left text-sm font-semibold text-primary-ex-light hover:text-white py-xs transition-colors border-b border-primary-dark">
-								Resumo do Ano
-							</button>
+				<div
+					className={`
+            md:hidden absolute top-[65px] left-0 right-0
+            bg-primary-ex-dark border-b border-primary-dark
+            shadow-xl overflow-hidden
+            transition-all duration-300
+            ${mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}
+          `}>
+					<nav className="flex flex-col p-s gap-1">
+						<button
+							onClick={() => {
+								setResumoAnualOpen(true);
+								handleMenuClose();
+							}}
+							className="text-center py-s text-primary-ex-light hover:text-white">
+							Resumo do Ano
+						</button>
+
+						<div className="w-full gap-4 flex items-center justify-center">
 							<button
 								onClick={() => setGastosFixosOpen(true)}
-								className="text-sm font-semibold text-primary-ex-light hover:text-white transition-colors duration-200 tracking-wide uppercase">
-								Gastos Fixos
+								className="
+                w-1/2 relative flex items-center justify-center gap-xs
+                p-xs rounded-s
+                font-bold text-sm
+                border border-primary-light/30 hover:border-primary-light/70
+                text-primary-ex-light hover:text-white
+                transition-all duration-200 active:scale-95
+                overflow-hidden group
+              ">
+								{/* Brilho sutil no hover */}
+								<span className="absolute inset-0 bg-primary-dark/0 group-hover:bg-primary-dark/40 transition-colors duration-200" />
+
+								<span className="relative flex items-center justify-center w-5 h-5 rounded-full bg-primary-dark/60 border border-primary/30 flex-shrink-0">
+									<IoTrendingDown className="w-3 h-3 text-negative" />
+								</span>
+								<span className="relative hidden sm:inline">Gastos Fixos</span>
 							</button>
-							<div className="pt-xs">
-								<div className="flex items-center gap-s">
-									<AcoesRapidas data={data} />
-								</div>
-							</div>
-						</nav>
-					</div>
-				)}
+
+							<button
+								onClick={() => setSaldoFixosOpen(true)}
+								className="
+                w-1/2 relative flex items-center justify-center gap-xs
+                p-xs rounded-s
+                font-bold text-sm
+                border border-primary-light/30 hover:border-primary-light/70
+                text-primary-ex-light hover:text-white
+                transition-all duration-200 active:scale-95
+                overflow-hidden group
+              ">
+								{/* Brilho sutil no hover */}
+								<span className="absolute inset-0 bg-primary-dark/0 group-hover:bg-primary-dark/40 transition-colors duration-200" />
+
+								<span className="relative flex items-center justify-center w-5 h-5 rounded-full bg-primary-dark/60 border border-primary/30 flex-shrink-0">
+									<IoTrendingUp className="w-3 h-3 text-positive" />
+								</span>
+								<span className="relative hidden sm:inline">Saldos</span>
+							</button>
+						</div>
+
+						<div className="pt-2">
+							<AcoesRapidas data={data} />
+						</div>
+					</nav>
+				</div>
 			</div>
 
 			<ModalResumoAnual isOpen={resumoAnualOpen} onClose={() => setResumoAnualOpen(false)} data={data} />
