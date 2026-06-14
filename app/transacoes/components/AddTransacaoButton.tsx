@@ -1,11 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { IoClose, IoAdd } from "react-icons/io5";
 import { FormularioTransacao } from "./FormularioTransacao";
+import { Transacao } from "../../src/types/transacao.type";
 
-export function AddTransacaoButton() {
+interface AddTransacaoButtonProps {
+	transacoes: Transacao[];
+}
+
+export function AddTransacaoButton({ transacoes }: AddTransacaoButtonProps) {
 	const [isOpen, setIsOpen] = useState(false);
+
+	const categoriasExistentes = useMemo(() => {
+		const classifs = transacoes.map((t) => t.classificacao_1).filter(Boolean);
+		return Array.from(new Set(classifs)).sort();
+	}, [transacoes]);
 
 	return (
 		<>
@@ -22,7 +32,6 @@ export function AddTransacaoButton() {
 					transition-all duration-300 active:scale-95
 					overflow-hidden group
 				">
-				{/* Brilho sutil no hover */}
 				<span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
 				<span className="relative flex items-center justify-center w-5 h-5 rounded-full bg-white/20 flex-shrink-0">
@@ -53,6 +62,7 @@ export function AddTransacaoButton() {
 
 						<div className="p-xl">
 							<FormularioTransacao
+								categoriasExistentes={categoriasExistentes}
 								onSuccess={() => {
 									setIsOpen(false);
 									window.location.reload();

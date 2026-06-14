@@ -4,8 +4,13 @@ import { useState } from "react";
 import { AddTransacaoButton } from "./AddTransacaoButton";
 import { ModalContasFixas } from "./ModalContasFixas";
 import { IoBookmarks } from "react-icons/io5";
+import { Transacao } from "../../src/types/transacao.type";
 
-export function AcoesRapidas() {
+interface AcoesRapidasProps {
+	data: Transacao[];
+}
+
+export function AcoesRapidas({ data }: AcoesRapidasProps) {
 	const [modalFixasOpen, setModalFixasOpen] = useState(false);
 
 	return (
@@ -31,7 +36,7 @@ export function AcoesRapidas() {
 				<span className="relative hidden sm:inline">Contas Fixas</span>
 			</button>
 
-			<AddTransacaoButton />
+			<AddTransacaoButton transacoes={data} />
 
 			<ModalContasFixas isOpen={modalFixasOpen} onClose={() => setModalFixasOpen(false)} onSuccess={() => window.location.reload()} />
 		</div>

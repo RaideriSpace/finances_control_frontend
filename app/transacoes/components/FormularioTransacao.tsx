@@ -9,6 +9,7 @@ interface FormularioTransacaoProps {
 	onSuccess: () => void;
 	onCancel: () => void;
 	initialData?: Transacao;
+	categoriasExistentes?: string[];
 }
 
 const ACOES = ["compra", "pagamento", "transferência", "depósito", "investimento", "saque"] as const;
@@ -43,7 +44,7 @@ const CARTAO_COLOR: Record<string, string> = {
 	outro: "border-dark-light text-auxiliary2-light",
 };
 
-export function FormularioTransacao({ onSuccess, onCancel, initialData }: FormularioTransacaoProps) {
+export function FormularioTransacao({ onSuccess, onCancel, initialData, categoriasExistentes = [] }: FormularioTransacaoProps) {
 	const [loading, setLoading] = useState(false);
 	const [formData, setFormData] = useState({
 		compra: initialData?.compra || "",
@@ -73,7 +74,7 @@ export function FormularioTransacao({ onSuccess, onCancel, initialData }: Formul
 		try {
 			if (initialData?.id) await TransacoesService.atualizar(initialData.id, payload);
 			else await TransacoesService.criar(payload);
-      console.log("payload enviado:", JSON.stringify(payload, null, 2));
+			console.log("payload enviado:", JSON.stringify(payload, null, 2));
 			onSuccess();
 		} catch (error) {
 			console.error(error);
@@ -170,11 +171,17 @@ export function FormularioTransacao({ onSuccess, onCancel, initialData }: Formul
 						</label>
 						<input
 							required
+							list="categorias-list"
 							placeholder="Ex: Alimentação"
 							className={inputClass}
 							value={formData.classificacao_1}
 							onChange={(e) => setFormData({ ...formData, classificacao_1: e.target.value })}
 						/>
+						<datalist id="categorias-list">
+							{categoriasExistentes.map((c) => (
+								<option key={c} value={c} />
+							))}
+						</datalist>
 					</div>
 					<div>
 						<label className={labelClass}>

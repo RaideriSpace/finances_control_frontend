@@ -66,7 +66,8 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 			.sort((a, b) => {
 				const dataA = a.data_pagamento ? new Date(a.data_pagamento).getTime() : 0;
 				const dataB = b.data_pagamento ? new Date(b.data_pagamento).getTime() : 0;
-				return dataB - dataA;
+				if (dataB !== dataA) return dataB - dataA;
+				return (b.insert_date ?? 0) > (a.insert_date ?? 0) ? 1 : -1;
 			});
 	}, [transacoes, busca, filtroCartao, filtroTipo, filtroClassificacao, filtroMes]);
 
@@ -84,7 +85,7 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 		outro: "border-x-tertiary-ex-dark",
 	};
 
-  const cartaoTagColor: Record<string, string> = {
+	const cartaoTagColor: Record<string, string> = {
 		picpay: "positive",
 		inter: "secondary",
 		mercado_pago: "auxiliary1",
@@ -169,12 +170,12 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 				:	<div className="flex flex-col gap-[2px]">
 						{transacoesFiltradas.map((t, index) => {
 							let isNegative = true;
-              
-              if(t.acao === "depósito" || t.acao === "investimento" || t.acao === "rendimento") isNegative = false;
+
+							if (t.acao === "depósito" || t.acao === "investimento" || t.acao === "rendimento") isNegative = false;
 
 							const borderColor = cartaoBorderColor[t.cartao] ?? "border-x-dark-light";
-              const tagColor = cartaoTagColor[t.cartao] ?? "dark-light";
-              const textTagColor = cartaoTagColor[t.cartao].includes("dark") ? "white" : "black"; 
+							const tagColor = cartaoTagColor[t.cartao] ?? "dark-light";
+							const textTagColor = cartaoTagColor[t.cartao].includes("dark") ? "white" : "black";
 							const isFirst = index === 0;
 							const isLast = index === transacoesFiltradas.length - 1;
 							const roundedClass =
@@ -288,6 +289,7 @@ export function ListaTransacoes({ initialData }: ListaTransacoesProps) {
 						<div className="p-xl">
 							<FormularioTransacao
 								initialData={transacaoEditando}
+								categoriasExistentes={classificacoesUnicas}
 								onSuccess={() => {
 									setTransacaoEditando(null);
 									window.location.reload();

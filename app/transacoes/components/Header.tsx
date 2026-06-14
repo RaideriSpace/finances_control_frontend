@@ -49,7 +49,7 @@ export function Header({ data }: HeaderProps) {
 					</div>
 
 					<div className="flex items-center gap-s">
-						<AcoesRapidas />
+						<AcoesRapidas data={data} />
 					</div>
 				</div>
 
@@ -89,7 +89,9 @@ export function Header({ data }: HeaderProps) {
 								Gastos Fixos
 							</button>
 							<div className="pt-xs">
-								<AcoesRapidas />
+								<div className="flex items-center gap-s">
+									<AcoesRapidas data={data} />
+								</div>
 							</div>
 						</nav>
 					</div>

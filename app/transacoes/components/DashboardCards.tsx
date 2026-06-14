@@ -47,11 +47,13 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 
 	// ── SALDOS: soma depósitos e investimentos por conta (débito, ações de entrada) ──
 	const saldos = useMemo(() => {
-		const acoesEntrada = ["depósito", "investimento", "rendimento", "reembolso"];
+		const acoesEntrada = ["depósito", "investimento"];
 		return CONTAS_SALDO.map((account) => {
 			const total = data.reduce((acc, t) => {
 				if (t.cartao === account && t.tipo === "debito" && acoesEntrada.includes(t.acao)) {
 					return acc + t.valor;
+				} else if (t.cartao === account && t.tipo === "debito" && !acoesEntrada.includes(t.acao)) {
+					return acc - t.valor;
 				}
 				return acc;
 			}, 0);
@@ -63,14 +65,18 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 	const faturas = useMemo(() => {
 		return CONTAS_FATURA.map((account) => {
 			const total = data.reduce((acc, t) => {
-				if (t.cartao === account && t.tipo === "credito") {
+				if (!t.data_pagamento) return acc;
+				const d = new Date(t.data_pagamento);
+				const dentroDoIntervalo = d.getFullYear() < anoAtual || (d.getFullYear() === anoAtual && d.getMonth() <= mesAtual);
+
+				if (t.cartao === account && t.tipo === "credito" && dentroDoIntervalo) {
 					return acc + t.valor;
 				}
 				return acc;
 			}, 0);
 			return { account, total };
 		});
-	}, [data]);
+	}, [data, mesAtual, anoAtual]);
 
 	// ── RESUMO DO MÊS ──
 	const resumo = useMemo(() => {

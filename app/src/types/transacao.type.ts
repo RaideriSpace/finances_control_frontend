@@ -20,6 +20,8 @@ export interface Transacao {
 	// Campos opcionais/nulos no banco de dados (substituem estabelecimento e razao_social)
 	local?: string | null;
 	data_pagamento?: string | null;
+
+  insert_date?: Date;
 }
 
 // Tipo usado apenas na hora de criar/atualizar
