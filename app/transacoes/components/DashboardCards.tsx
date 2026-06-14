@@ -29,6 +29,9 @@ const CONTA_LABELS: Record<string, string> = {
 	outro: "Outras Contas",
 };
 
+const CONTAS_SALDO_PROPRIAS = new Set(["picpay", "inter", "swile"]);
+const CONTAS_FATURA_PROPRIAS = new Set(["picpay", "inter"]);
+
 const ACOES_SAIDA = ["pagamento", "saque", "transferência", "compra"] as const;
 
 export function DashboardCards({ data }: DashboardCardsProps) {
@@ -50,11 +53,12 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 		const acoesEntrada = ["depósito", "investimento"];
 		return CONTAS_SALDO.map((account) => {
 			const total = data.reduce((acc, t) => {
-				if (t.cartao === account && t.tipo === "debito" && acoesEntrada.includes(t.acao)) {
-					return acc + t.valor;
-				} else if (t.cartao === account && t.tipo === "debito" && !acoesEntrada.includes(t.acao)) {
-					return acc - t.valor;
-				}
+				const conta = CONTAS_SALDO_PROPRIAS.has(t.cartao) ? t.cartao : "outro";
+				if (conta !== account) return acc;
+
+				if (t.tipo === "debito" && acoesEntrada.includes(t.acao)) return acc + t.valor;
+        else if (t.tipo === "debito" && !acoesEntrada.includes(t.acao)) return acc - t.valor;
+
 				return acc;
 			}, 0);
 			return { account, total };
@@ -68,11 +72,13 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 				if (!t.data_pagamento) return acc;
 				const d = new Date(t.data_pagamento);
 				const dentroDoIntervalo = d.getFullYear() < anoAtual || (d.getFullYear() === anoAtual && d.getMonth() <= mesAtual);
+				if (!dentroDoIntervalo || t.tipo !== "credito") return acc;
 
-				if (t.cartao === account && t.tipo === "credito" && dentroDoIntervalo) {
-					if (t.acao === "compra") return acc + t.valor;       
-          if (t.acao === "depósito") return acc - t.valor;
-				}
+				const conta = CONTAS_FATURA_PROPRIAS.has(t.cartao) ? t.cartao : "outro";
+				if (conta !== account) return acc;
+
+				if (t.acao === "compra") return acc + t.valor;
+				if (t.acao === "depósito") return acc - t.valor;
 				return acc;
 			}, 0);
 			return { account, total };
@@ -81,6 +87,7 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 
 	// ── RESUMO DO MÊS ──
 	const resumo = useMemo(() => {
+    
 		// Gasto do mês: compra + pagamento + transferência + saque no mês atual
 		const gastoDoMes = transacoesMes.reduce((acc, t) => {
 			if (t.tipo === "debito" && ACOES_SAIDA.includes(t.acao as any)) {
@@ -90,8 +97,8 @@ export function DashboardCards({ data }: DashboardCardsProps) {
 		}, 0);
 
 		// Previsão de saldo: dados mockados fixos
-		const previsaoSaldo = PREVISAO_TOTAL 
-    // + transacoesMes.reduce((acc, t) => {
+		const previsaoSaldo = PREVISAO_TOTAL;
+		// + transacoesMes.reduce((acc, t) => {
 		// 	if (t.tipo === "debito" && ACOES_SAIDA.includes(t.acao as any)) {
 		// 		return acc + t.valor;
 		// 	}
