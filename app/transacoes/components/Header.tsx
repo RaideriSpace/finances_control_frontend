@@ -8,7 +8,7 @@ import { ModalResumoAnual } from "./modals/ModalResumoAnual";
 import { IoMenu, IoClose, IoTrendingUp, IoTrendingDown } from "react-icons/io5";
 import { Transacao } from "../../src/types/transacao.type";
 import { ModalSaldoFixo } from "./modals/ModalSaldoFixos";
-import { ModalGastosFixos } from "./modals/ModalGastosFixos";
+import { ModalGastosFixos } from "./modals/ModalGastos";
 
 interface HeaderProps {
 	data: Transacao[];
