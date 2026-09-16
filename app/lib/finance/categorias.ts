@@ -33,11 +33,17 @@ export interface CategoriaResumo {
 	valor: number;
 }
 
-/** Agrupa gastos (débito, saída, categoria não oculta) por classificacao_1, do maior para o menor. */
+/**
+ * Agrupa gastos (saída, categoria não oculta) por classificacao_1, do maior
+ * para o menor. Não filtra por tipo — débito e crédito são somados juntos,
+ * igual ao cálculo de "categorias" do backend (dashboard/domain/resumo-mensal.ts),
+ * para dar uma visão completa do gasto por categoria independente da forma
+ * de pagamento.
+ */
 export function agruparCategorias(transacoes: readonly Transacao[], top = 5): CategoriaResumo[] {
 	const categorias = new Map<string, number>();
 	for (const transacao of transacoes) {
-		if (transacao.tipo !== "debito" || !ehSaida(transacao.acao)) continue;
+		if (!ehSaida(transacao.acao)) continue;
 		if (CATEGORIAS_OCULTAS.has(transacao.classificacao_1)) continue;
 		const nome = transacao.classificacao_1 || "Sem categoria";
 		categorias.set(nome, (categorias.get(nome) ?? 0) + transacao.valor);
