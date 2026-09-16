@@ -1,7 +1,10 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-	content: ["./app/**/*.{js,ts,jsx,tsx,mdx}", "./src/**/*.{js,ts,jsx,tsx,mdx}", "./components/**/*.{js,ts,jsx,tsx,mdx}"],
+	// `src/` e `components/` na raiz do projeto nunca existiram — todo o código
+	// vive sob `app/**` (rotas em app/, UI compartilhada em app/components/,
+	// features em app/features/, lib em app/lib/).
+	content: ["./app/**/*.{js,ts,jsx,tsx,mdx}"],
 	theme: {
 		extend: {
 			colors: {

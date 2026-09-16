@@ -1,381 +1,86 @@
-# Arquitetura e Clean Code - RailLink
+# Arquitetura — Finanças Control (Frontend)
 
 ## Visão Geral
 
-O RailLink segue os princípios de **Clean Architecture** e **Clean Code** para garantir um código escalável, testável e fácil de manter.
+O frontend é uma camada de apresentação. O backend é a autoridade para persistência e regras
+financeiras (parcelamento, saldo por fonte, geração automática de recorrências). O frontend não
+acessa nenhum banco de dados diretamente: fala exclusivamente com a API HTTP via `app/lib/api`.
 
-## 1. Estrutura de Diretórios
+- **Backend:** domínio financeiro, validação de entrada, persistência e API HTTP.
+- **Frontend:** apresentação, estado de tela e composição de payloads compatíveis com a API.
+- **Configuração:** `NEXT_PUBLIC_API_URL` define a origem da API (default `http://localhost:3001`).
+
+## 1. Estrutura de diretórios
 
 ```
 app/
-├── core/
-│   ├── domain/
-│   │   ├── entities/          # Entidades de negócio
-│   │   └── repositories/      # Interfaces de repositório
-│   ├── infrastructure/
-│   │   ├── services/          # Serviços de aplicação
-│   │   └── repositories/      # Implementações de repositório
-│   └── presentation/
-│       ├── hooks/             # Hooks customizados
-│       ├── utils/             # Funções utilitárias
-│       └── constants/         # Constantes globais
-├── transacoes/
-│   └── components/            # Componentes de transações
-├── components/                # Componentes reutilizáveis
-├── layout.tsx                 # Layout raiz
-├── page.tsx                   # Página raiz
-└── globals.css               # Estilos globais
+├── page.tsx, layout.tsx          # rota "/" e layout raiz
+├── lancamentos/page.tsx          # rota "/lancamentos"
+├── components/                    # UI verdadeiramente compartilhada entre features
+│   ├── SkipLink.tsx
+│   ├── ToastProvider.tsx         # feedback de sucesso/erro (useToast)
+│   └── ConfirmDialog.tsx         # confirmação assíncrona (useConfirm) — substitui window.confirm
+├── features/
+│   ├── dashboard/                 # DashboardView, DashboardCards
+│   ├── transacoes/                # Header, Footer, AcoesRapidas, ListaTransacoes, FormularioTransacao
+│   ├── gastos-fixos/               # ModalGastos
+│   ├── saldos/                     # ModalSaldoFixos
+│   ├── recorrencias/               # ModalRecorrentes
+│   └── resumo-anual/               # ModalResumoAnual
+└── lib/
+    ├── api/                       # http-client.ts + um serviço por recurso (fetch tipado)
+    ├── types/                     # Transacao, Recorrencia, Saldo, GastoFixo, DashboardResumo
+    ├── finance/                   # regras de cálculo puras e testadas (ver seção 3)
+    └── format.ts                  # formatarMoeda / formatarData
 ```
 
-## 2. Camadas da Arquitetura
+Cada feature agrupa seus próprios componentes; nada é compartilhado entre features por import
+relativo cruzado — quando uma feature precisa de algo de outra (ex.: `Header` abre modais de
+`saldos`/`gastos-fixos`/`recorrencias`), o import usa o alias absoluto `@/app/...`.
 
-### 2.1 Domain Layer (Domínio)
-Contém as regras de negócio puras, independentes de frameworks.
+## 2. Camada de dados (`app/lib/api`)
 
-```typescript
-// app/core/domain/entities/Transacao.ts
-export interface Transacao {
-  id: string;
-  compra: string;
-  valor: number;
-  // ... outras propriedades
-}
+`http-client.ts` centraliza `fetch` + tratamento de erro (`ApiError` tipado, com `status` e
+mensagem extraída do corpo JSON do backend quando disponível). Cada arquivo `*.service.ts`
+(`transacoes`, `saldo`, `gastos-fixos`, `recorrencias`, `dashboard`) é um objeto simples de métodos
+que chamam `httpClient.get/post/patch/delete` — sem classes, sem DI, porque não há múltiplas
+implementações a trocar (só existe um backend).
 
-// app/core/domain/repositories/ITransacaoRepository.ts
-export interface ITransacaoRepository {
-  getTransacoes(): Promise<Transacao[]>;
-  criarTransacao(transacao: Omit<Transacao, 'id'>): Promise<Transacao>;
-  // ... outros métodos
-}
-```
+As páginas (Server Components) chamam esses mesmos serviços — não fazem `fetch()` inline.
 
-### 2.2 Infrastructure Layer (Infraestrutura)
-Implementa as interfaces do domínio e fornece acesso a dados externos.
+## 3. Regras de negócio compartilhadas (`app/lib/finance`)
 
-```typescript
-// app/core/infrastructure/repositories/SupabaseTransacaoRepository.ts
-export class SupabaseTransacaoRepository implements ITransacaoRepository {
-  async getTransacoes(): Promise<Transacao[]> {
-    // Implementação com Supabase
-  }
-}
+Cálculos usados por mais de uma tela (dashboard, resumo anual) vivem aqui como funções puras,
+testadas por unidade, em vez de reimplementados em cada componente:
 
-// app/core/infrastructure/services/TransacaoService.ts
-export class TransacaoService {
-  constructor(private repository: ITransacaoRepository) {}
-  
-  async obterTodasTransacoes(): Promise<Transacao[]> {
-    return this.repository.getTransacoes();
-  }
-}
-```
+- `categorias.ts` — classificação canônica de ações em entrada/saída (espelha
+  `TRANSACAO_ACOES_ENTRADA`/`SAIDA` do backend).
+- `resumo-mensal.ts` — gasto/entrada/saldo de um período.
+- `saldos-por-conta.ts` / `faturas.ts` — saldo e fatura por conta.
+- `data-local.ts` — parsing de datas `YYYY-MM-DD` sem o deslocamento de fuso horário de
+  `new Date(string)`.
 
-### 2.3 Presentation Layer (Apresentação)
-Contém componentes React, hooks e utilitários de UI.
+## 4. Por que não há repository/DI no frontend
 
-```typescript
-// app/core/presentation/hooks/useTransacoes.ts
-export function useTransacoes() {
-  const [state, setState] = useState<UseTransacoesState>({
-    transacoes: [],
-    loading: true,
-    error: null,
-  });
-  // ... lógica do hook
-}
+Uma versão anterior deste projeto tinha uma camada `app/core` inspirada em Clean Architecture
+"de manual" (entidades, `ITransacaoRepository`, `TransacaoService`, DI manual) acessando o Supabase
+diretamente — nunca usada pelas telas reais e removida nesta limpeza. Para uma UI que só fala com
+um backend HTTP, repository/DI são abstrações sem propósito (não há uma segunda implementação para
+trocar). O ganho real de "arquitetura limpa" aqui é: dados vindos do servidor não se misturam com
+regra de cálculo (seção 3), que por sua vez não se mistura com JSX.
 
-// app/transacoes/components/DashboardCards.tsx
-export function DashboardCards({ data }: DashboardCardsProps) {
-  // Componente de apresentação
-}
-```
+## 5. Convenções
 
-## 3. Princípios SOLID
+- **Import:** relativo dentro da mesma feature (`./FormularioTransacao`), alias `@/app/...` entre
+  features/lib.
+- **Feedback:** `useToast()` para sucesso/erro, `useConfirm()` para confirmações — nunca
+  `alert()`/`confirm()` nativos.
+- **Atualização de dados após mutação:** `router.refresh()` (Next.js) para revalidar dados do
+  Server Component, nunca `window.location.reload()`.
+- **Tipos:** as uniões de `acao`/`cartao`/`tipo` em `lib/types/transacao.type.ts` são a fonte única
+  reusada por `Recorrencia` — evita `as any` em conversões entre os dois.
 
-### 3.1 Single Responsibility Principle (SRP)
-Cada classe/função tem uma única responsabilidade.
+## 6. Testes
 
-```typescript
-// ✅ Bom: Cada classe tem uma responsabilidade
-class TransacaoService {
-  async obterTransacoes() { /* ... */ }
-}
-
-class TransacaoRepository {
-  async getTransacoes() { /* ... */ }
-}
-
-// ❌ Ruim: Múltiplas responsabilidades
-class TransacaoManager {
-  async obterTransacoes() { /* ... */ }
-  async salvarNoSupabase() { /* ... */ }
-  async formatarParaUI() { /* ... */ }
-}
-```
-
-### 3.2 Open/Closed Principle (OCP)
-Aberto para extensão, fechado para modificação.
-
-```typescript
-// ✅ Bom: Interface permite múltiplas implementações
-interface ITransacaoRepository {
-  getTransacoes(): Promise<Transacao[]>;
-}
-
-class SupabaseTransacaoRepository implements ITransacaoRepository { }
-class FirebaseTransacaoRepository implements ITransacaoRepository { }
-
-// ❌ Ruim: Modificar código existente para adicionar novo repositório
-class TransacaoService {
-  if (useSupabase) { /* ... */ }
-  else if (useFirebase) { /* ... */ }
-}
-```
-
-### 3.3 Liskov Substitution Principle (LSP)
-Subclasses devem ser substituíveis por suas superclasses.
-
-```typescript
-// ✅ Bom: Implementações podem ser substituídas
-const repository: ITransacaoRepository = new SupabaseTransacaoRepository();
-const service = new TransacaoService(repository);
-
-// Pode trocar para Firebase sem quebrar o código
-const repository: ITransacaoRepository = new FirebaseTransacaoRepository();
-```
-
-### 3.4 Interface Segregation Principle (ISP)
-Clientes não devem depender de interfaces que não usam.
-
-```typescript
-// ✅ Bom: Interfaces específicas
-interface ITransacaoReader {
-  getTransacoes(): Promise<Transacao[]>;
-}
-
-interface ITransacaoWriter {
-  criarTransacao(transacao: Omit<Transacao, 'id'>): Promise<Transacao>;
-}
-
-// ❌ Ruim: Interface genérica
-interface ITransacaoRepository {
-  getTransacoes(): Promise<Transacao[]>;
-  criarTransacao(transacao: Omit<Transacao, 'id'>): Promise<Transacao>;
-  atualizarTransacao(id: string, transacao: Partial<Transacao>): Promise<Transacao>;
-  deletarTransacao(id: string): Promise<void>;
-}
-```
-
-### 3.5 Dependency Inversion Principle (DIP)
-Dependa de abstrações, não de implementações concretas.
-
-```typescript
-// ✅ Bom: Depende de interface
-class TransacaoService {
-  constructor(private repository: ITransacaoRepository) {}
-}
-
-// ❌ Ruim: Depende de implementação concreta
-class TransacaoService {
-  constructor(private repository: SupabaseTransacaoRepository) {}
-}
-```
-
-## 4. Clean Code
-
-### 4.1 Nomes Significativos
-```typescript
-// ✅ Bom
-const formatarMoeda = (valor: number): string => { /* ... */ }
-const obterClasseCorValor = (valor: number): string => { /* ... */ }
-
-// ❌ Ruim
-const fmt = (v: number): string => { /* ... */ }
-const getColor = (v: number): string => { /* ... */ }
-```
-
-### 4.2 Funções Pequenas e Focadas
-```typescript
-// ✅ Bom: Funções pequenas e específicas
-const obterCorValor = (valor: number): string => {
-  if (valor > 0) return COLORS.positive;
-  if (valor < 0) return COLORS.negative;
-  return COLORS.neutral;
-}
-
-// ❌ Ruim: Função faz muitas coisas
-const processarValor = (valor: number) => {
-  const cor = valor > 0 ? 'green' : valor < 0 ? 'red' : 'gray';
-  const formatado = new Intl.NumberFormat('pt-BR', { /* ... */ }).format(valor);
-  const classe = `text-${cor}-600 font-bold`;
-  return { cor, formatado, classe };
-}
-```
-
-### 4.3 Tratamento de Erros
-```typescript
-// ✅ Bom: Tratamento explícito
-try {
-  const transacoes = await service.obterTodasTransacoes();
-} catch (error) {
-  const err = error instanceof Error ? error : new Error('Erro desconhecido');
-  setState((prev) => ({ ...prev, error: err }));
-}
-
-// ❌ Ruim: Ignorar erros
-const transacoes = await service.obterTodasTransacoes();
-```
-
-### 4.4 Documentação
-```typescript
-/**
- * @function formatarMoeda
- * @description Formata um valor numérico como moeda brasileira
- * @param {number} valor - O valor a ser formatado
- * @returns {string} Valor formatado em BRL
- * @example
- * formatarMoeda(1000.50) // "R$ 1.000,50"
- */
-export function formatarMoeda(valor: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(valor);
-}
-```
-
-## 5. Padrões de Projeto
-
-### 5.1 Dependency Injection
-```typescript
-// Injetar dependências via construtor
-class TransacaoService {
-  constructor(private repository: ITransacaoRepository) {}
-}
-
-// Uso
-const repository = new SupabaseTransacaoRepository();
-const service = new TransacaoService(repository);
-```
-
-### 5.2 Repository Pattern
-```typescript
-// Abstração de acesso a dados
-interface ITransacaoRepository {
-  getTransacoes(): Promise<Transacao[]>;
-  criarTransacao(transacao: Omit<Transacao, 'id'>): Promise<Transacao>;
-}
-
-// Implementação
-class SupabaseTransacaoRepository implements ITransacaoRepository {
-  async getTransacoes(): Promise<Transacao[]> { /* ... */ }
-  async criarTransacao(transacao: Omit<Transacao, 'id'>): Promise<Transacao> { /* ... */ }
-}
-```
-
-### 5.3 Service Layer
-```typescript
-// Lógica de negócio centralizada
-class TransacaoService {
-  async obterTodasTransacoes(): Promise<Transacao[]> {
-    return this.repository.getTransacoes();
-  }
-
-  obterCorValor(valor: number): 'positive' | 'negative' | 'neutral' {
-    if (valor > 0) return 'positive';
-    if (valor < 0) return 'negative';
-    return 'neutral';
-  }
-}
-```
-
-### 5.4 Custom Hooks
-```typescript
-// Encapsular lógica de estado
-export function useTransacoes() {
-  const [state, setState] = useState<UseTransacoesState>({
-    transacoes: [],
-    loading: true,
-    error: null,
-  });
-
-  useEffect(() => {
-    carregarDados();
-  }, []);
-
-  return { ...state, carregarDados };
-}
-```
-
-## 6. Boas Práticas
-
-### 6.1 Type Safety
-```typescript
-// ✅ Usar tipos TypeScript
-interface Transacao {
-  id: string;
-  valor: number;
-  tipo: 'debito' | 'credito';
-}
-
-// ❌ Evitar any
-const transacao: any = { /* ... */ };
-```
-
-### 6.2 Imutabilidade
-```typescript
-// ✅ Bom: Não mutar estado
-setState((prev) => ({
-  ...prev,
-  transacoes: [novaTransacao, ...prev.transacoes],
-}));
-
-// ❌ Ruim: Mutar estado diretamente
-state.transacoes.push(novaTransacao);
-```
-
-### 6.3 Composição sobre Herança
-```typescript
-// ✅ Bom: Composição
-class TransacaoService {
-  constructor(private repository: ITransacaoRepository) {}
-}
-
-// ❌ Ruim: Herança
-class TransacaoService extends BaseService {
-  // ...
-}
-```
-
-## 7. Testes
-
-### 7.1 Estrutura de Testes
-```typescript
-describe('TransacaoService', () => {
-  let service: TransacaoService;
-  let repository: ITransacaoRepository;
-
-  beforeEach(() => {
-    repository = new MockTransacaoRepository();
-    service = new TransacaoService(repository);
-  });
-
-  it('deve obter todas as transações', async () => {
-    const transacoes = await service.obterTodasTransacoes();
-    expect(transacoes).toBeDefined();
-  });
-});
-```
-
-## 8. Recursos Adicionais
-
-- [Clean Code - Robert C. Martin](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882)
-- [Clean Architecture - Robert C. Martin](https://www.amazon.com/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164)
-- [SOLID Principles](https://en.wikipedia.org/wiki/SOLID)
-- [Design Patterns](https://refactoring.guru/design-patterns)
-
----
-
-**Última atualização:** 06/06/2026
-**Versão:** 1.0
-**Status:** Ativo
+Vitest + Testing Library. `pnpm test` roda tudo; o maior valor está em `app/lib/finance/*.test.ts`
+(regras puras, sem mocks) e em testes de fumaça dos componentes mais usados.
