@@ -1,4 +1,10 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+// Antes da reestruturação em app/lib/api, cada *.service.ts tinha essa mesma
+// URL do backend em produção (Render) hardcoded — nenhum ambiente, nem local,
+// usava outra coisa. Mantém esse valor como default (em vez de localhost) para
+// não quebrar produção na Vercel, que nunca teve NEXT_PUBLIC_API_URL configurada;
+// defina essa env var localmente (.env.local) só se quiser apontar para um
+// backend rodando na sua máquina.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://finances-control-backend.onrender.com";
 
 export class ApiError extends Error {
 	constructor(
